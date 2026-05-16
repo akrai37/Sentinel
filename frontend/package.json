@@ -11,7 +11,10 @@
   "dependencies": {
     "next": "16.2.6",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "stream-chat": "^9.44.2",
+    "stream-chat-react": "^14.2.0",
+    "trtc-sdk-v5": "^5.17.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

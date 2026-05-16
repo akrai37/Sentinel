@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import {
+  clearChat,
   fetchEval,
   fetchStats,
   fireDemoAttack,
@@ -11,6 +12,9 @@ import {
 } from "@/lib/api";
 import { useEventStream } from "@/lib/useEventStream";
 import type { Severity } from "@/lib/types";
+import WarRoom from "@/components/WarRoom";
+import dynamic from "next/dynamic";
+const StreamPanel = dynamic(() => import("@/components/StreamPanel"), { ssr: false });
 
 const SEVERITY_STYLES: Record<Severity, string> = {
   low: "bg-slate-700/40 text-slate-200 border-slate-600",
@@ -40,11 +44,18 @@ export default function Dashboard() {
     return () => clearInterval(t);
   }, []);
 
+  const [warroomFor, setWarroomFor] = useState<string | null>(null);
+
   const counts = useMemo(() => {
     const c: Record<Severity, number> = { low: 0, medium: 0, high: 0, critical: 0 };
     for (const e of events) c[e.severity]++;
     return c;
   }, [events]);
+
+  const latestCritical = useMemo(
+    () => events.find((e) => e.severity === "critical"),
+    [events]
+  );
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 p-6 font-mono">
@@ -78,6 +89,25 @@ export default function Dashboard() {
         ))}
       </section>
 
+      {latestCritical && stats?.trtc?.available && (
+        <section className="mb-4 border border-red-500/50 bg-red-500/10 rounded-md px-4 py-3 flex items-center gap-4">
+          <div className="flex-1">
+            <div className="text-xs uppercase tracking-wider text-red-300">🚨 Critical incident — auto-blocked</div>
+            <div className="text-sm text-slate-200 mt-1">
+              {latestCritical.call.agent_id} attempted{" "}
+              <span className="font-semibold">{latestCritical.call.tool_name}</span>{" "}
+              · {latestCritical.assessment.category} · score {latestCritical.assessment.score.toFixed(2)}
+            </div>
+          </div>
+          <button
+            onClick={() => setWarroomFor(latestCritical.id)}
+            className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded text-sm font-bold whitespace-nowrap"
+          >
+            🎥 Join war room
+          </button>
+        </section>
+      )}
+
       <section className="flex gap-2 mb-4">
         <button
           onClick={fireDemoAttack}
@@ -97,8 +127,15 @@ export default function Dashboard() {
         >
           Stop traffic
         </button>
+        <button
+          onClick={clearChat}
+          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded text-sm"
+        >
+          Clear chat
+        </button>
       </section>
 
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4">
       <section className="border border-slate-800 rounded-md overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-slate-900 text-slate-400 text-xs uppercase">
@@ -159,6 +196,16 @@ export default function Dashboard() {
         </table>
       </section>
 
+      {stats?.stream?.available && (
+        <aside>
+          <div className="text-xs uppercase tracking-wider text-slate-400 mb-2">
+            #incidents · stream chat
+          </div>
+          <StreamPanel />
+        </aside>
+      )}
+      </div>
+
       <footer className="mt-6 flex flex-wrap items-center gap-4 text-xs text-slate-500 border-t border-slate-800 pt-4">
         <span>
           ranker:{" "}
@@ -170,6 +217,18 @@ export default function Dashboard() {
           LLM:{" "}
           <span className={stats?.llm.available ? "text-emerald-400" : "text-amber-400"}>
             {stats?.llm.available ? `online · ${stats.llm.cache_size} cached` : "offline (set ANTHROPIC_API_KEY)"}
+          </span>
+        </span>
+        <span>
+          stream:{" "}
+          <span className={stats?.stream?.available ? "text-emerald-400" : "text-slate-500"}>
+            {stats?.stream?.available ? "online" : "offline"}
+          </span>
+        </span>
+        <span>
+          TRTC:{" "}
+          <span className={stats?.trtc?.available ? "text-emerald-400" : "text-slate-500"}>
+            {stats?.trtc?.available ? "online" : "offline"}
           </span>
         </span>
         {evalM && (
@@ -187,6 +246,10 @@ export default function Dashboard() {
           </span>
         )}
       </footer>
+
+      {warroomFor && (
+        <WarRoom incidentId={warroomFor} onClose={() => setWarroomFor(null)} />
+      )}
     </main>
   );
 }

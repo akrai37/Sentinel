@@ -58,9 +58,9 @@ def make_call(payload: dict) -> ToolCall:
 
 
 async def stream_traces(
-    rate_per_sec: float = 1.5,
-    malicious_ratio: float = 0.10,
-    ambiguous_ratio: float = 0.12,
+    rate_per_sec: float = 0.4,
+    malicious_ratio: float = 0.08,
+    ambiguous_ratio: float = 0.10,
 ) -> None:
     """Continuously emit synthetic calls through the interceptor.
 

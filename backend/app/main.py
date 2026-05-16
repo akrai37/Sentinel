@@ -13,12 +13,18 @@ import asyncio
 import json
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
+
+load_dotenv()  # populate env from backend/.env before module imports run
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 
 from . import llm_classifier
 from .data.synthetic_traces import emit_demo_attack, stream_traces
+from .escalation import stream as stream_chat
+from .escalation import trtc
 from .eval.harness import run as run_eval
 from .event_bus import bus
 from .interceptor import intercept
@@ -78,7 +84,15 @@ async def stats() -> dict:
             "model": llm_classifier.MODEL,
             "cache_size": llm_classifier.cache_size(),
         },
+        "trtc": {"available": trtc.available()},
+        "stream": {"available": stream_chat.available()},
     }
+
+
+@app.get("/api/stream/token")
+async def stream_token(user_id: str = "oncall") -> dict:
+    """Mint a Stream Chat token + channel info for the browser SDK."""
+    return stream_chat.gen_user_token(user_id)
 
 
 _eval_cache: dict | None = None
@@ -122,6 +136,25 @@ async def get_incident(incident_id: str) -> dict:
     return {"error": "not_found", "incident_id": incident_id}
 
 
+@app.post("/api/incidents/{incident_id}/warroom")
+async def open_warroom(incident_id: str, joiner: str = "oncall") -> dict:
+    """Provision a TRTC war-room for a critical incident; returns join bundle."""
+    for e in bus.history():
+        if e.id == incident_id:
+            bundle = trtc.warroom_for_incident(incident_id, joiner=joiner)
+            bundle["incident"] = {
+                "id": e.id,
+                "tool": e.call.tool_name,
+                "agent": e.call.agent_id,
+                "category": e.assessment.category,
+                "rationale": e.assessment.rationale,
+                "score": e.assessment.score,
+                "severity": e.severity.value,
+            }
+            return bundle
+    return {"error": "not_found", "incident_id": incident_id}
+
+
 @app.post("/api/incidents/{incident_id}/decide")
 async def decide_incident(incident_id: str, body: dict) -> dict:
     """Update human decision on an incident. body = {action: 'block'|'release'|'escalate'}."""
@@ -158,6 +191,13 @@ async def post_intercept(call: ToolCall) -> InterceptedEvent:
 async def demo_attack() -> dict:
     await emit_demo_attack()
     return {"ok": True}
+
+
+@app.post("/api/demo/clear_chat")
+async def demo_clear_chat() -> dict:
+    """Truncate the Stream incidents channel so the demo starts clean."""
+    ok = await stream_chat.truncate_channel()
+    return {"ok": ok}
 
 
 @app.post("/api/demo/traffic/start")

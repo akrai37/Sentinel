@@ -7,7 +7,7 @@ from .schemas import InterceptedEvent
 
 
 class EventBus:
-    def __init__(self, history_size: int = 500) -> None:
+    def __init__(self, history_size: int = 50_000) -> None:
         self._subscribers: set[asyncio.Queue[InterceptedEvent]] = set()
         self._history: deque[InterceptedEvent] = deque(maxlen=history_size)
 
