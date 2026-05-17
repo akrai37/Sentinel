@@ -96,29 +96,31 @@ export default function WarRoom({ incidentId, onClose, onEscalate }: Props) {
     let cancelled = false;
 
     async function join() {
-      // Pull incident context (same endpoint as before, returns the
-      // incident metadata we render in the brief)
-      const b = await openWarroom(incidentId);
-      if (cancelled) return;
-      if (b.error) {
-        setError(b.error);
-        setState("error");
-        return;
+      // Best-effort pull of incident context; if the live bus has aged
+      // this incident out we still want to open the Meet war room.
+      let b: WarroomBundle | null = null;
+      try {
+        const ctx = await openWarroom(incidentId);
+        if (!cancelled && !ctx.error) {
+          b = ctx;
+          setBundle(ctx);
+        }
+      } catch {
+        // ignore; Meet flow doesn't depend on this
       }
-      setBundle(b);
+      if (cancelled) return;
       setState("joining");
 
-      // Provision the Google Meet war room and open it in a new tab
+      // Provision the Google Meet war room (do not auto-open — engineer
+      // clicks the link when ready)
       try {
         const meet = await createMeetWarroom(incidentId);
         if (cancelled) return;
         if (meet?.meet_link) {
           setMeetLink(meet.meet_link);
-          // Auto-open the Meet tab so engineers can join immediately
-          window.open(meet.meet_link, "_blank", "noopener");
         }
         setState("joined");
-        speak(briefText(b));
+        if (b) speak(briefText(b));
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         setError(msg);
@@ -286,6 +288,11 @@ export default function WarRoom({ incidentId, onClose, onEscalate }: Props) {
                   </div>
                 </div>
               </div>
+            ) : state === "joined" ? (
+              <div className="text-[#6C7278] text-sm italic">
+                Incident context not in live event bus (likely from a previous run). The Meet
+                war room is still open below — engineers can join, discuss, and act.
+              </div>
             ) : (
               <div className="text-[#6C7278] text-sm">Loading incident…</div>
             )}
@@ -350,18 +357,21 @@ export default function WarRoom({ incidentId, onClose, onEscalate }: Props) {
               )}
               {state === "joined" && meetLink && (
                 <>
-                  <div className="text-4xl mb-3">🟢</div>
-                  <div className="text-sm text-[#1A1C1E] font-semibold mb-1">
-                    Meet war room is live
+                  <div className="text-4xl mb-2">🟢</div>
+                  <div className="text-sm text-[#1A1C1E] font-semibold mb-3">
+                    Meet war room is ready
                   </div>
                   <a
                     href={meetLink}
                     target="_blank"
                     rel="noopener"
-                    className="text-xs font-mono text-[#1A8754] hover:underline break-all px-2 text-center"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#1A8754] hover:bg-[#157148] text-white rounded-[4px] text-sm font-semibold transition-colors"
                   >
-                    {meetLink}
+                    Open Meet
                   </a>
+                  <div className="text-[10px] font-mono text-[#1A8754]/70 mt-2 break-all px-2 text-center">
+                    {meetLink}
+                  </div>
                 </>
               )}
               {state === "error" && (
