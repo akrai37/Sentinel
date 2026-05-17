@@ -103,6 +103,31 @@ async def truncate_channel() -> bool:
         return False
 
 
+async def post_escalation(incident_id: str, note: str = "") -> None:
+    """Post a follow-up 'ESCALATED' message to the incidents channel."""
+    if not available():
+        return
+    try:
+        await _ensure_channel()
+        client = _get_client()
+        if client is None:
+            return
+        ch = client.channel(CHANNEL_TYPE, CHANNEL_ID)
+        text = f"🚨 ESCALATED by on-call · needs second opinion · incident {incident_id}"
+        if note:
+            text += f"\n{note}"
+        ch.send_message(
+            {
+                "text": text,
+                "sentinel_incident_id": incident_id,
+                "sentinel_escalation": True,
+            },
+            BOT_USER_ID,
+        )
+    except Exception as exc:
+        log.warning("stream post_escalation failed: %s", exc)
+
+
 async def post_incident(event: dict[str, Any]) -> None:
     """Post one intercepted-event card to the incidents channel."""
     if not available():

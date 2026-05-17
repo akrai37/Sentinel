@@ -112,6 +112,17 @@ export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [evalM, setEvalM] = useState<EvalMetrics | null>(null);
   const [warroomFor, setWarroomFor] = useState<string | null>(null);
+  const [escalations, setEscalations] = useState<{ id: string; at: number }[]>([]);
+  const [showAllEvents, setShowAllEvents] = useState(false);
+  const TABLE_LIMIT = 30;
+
+  function recordEscalation(id: string) {
+    const now = Date.now();
+    setEscalations((prev) => [{ id, at: now }, ...prev].slice(0, 5));
+    setTimeout(() => {
+      setEscalations((prev) => prev.filter((e) => e.at !== now));
+    }, 12_000);
+  }
 
   useEffect(() => {
     fetchEval().then(setEvalM).catch(() => {});
@@ -311,9 +322,21 @@ export default function Dashboard() {
           <section className="bg-white border border-[#6C7278]/15 rounded-[8px] overflow-hidden">
             <div className="px-4 py-3 border-b border-[#6C7278]/15 flex items-center justify-between">
               <span className="label-caps text-[#6C7278]">Intercepted tool calls</span>
-              <span className="label-caps text-[#6C7278]/40">
-                {events.length} events · hover for rationale
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="label-caps text-[#6C7278]/40">
+                  {showAllEvents || events.length <= TABLE_LIMIT
+                    ? `${events.length} events`
+                    : `showing ${TABLE_LIMIT} of ${events.length}`}
+                </span>
+                {events.length > TABLE_LIMIT && (
+                  <button
+                    onClick={() => setShowAllEvents((v) => !v)}
+                    className="label-caps text-[#1A1C1E] hover:text-[#B8422E] transition-colors"
+                  >
+                    {showAllEvents ? "show recent only" : "view all"}
+                  </button>
+                )}
+              </div>
             </div>
             <div className="max-h-[640px] overflow-y-auto">
               <table className="w-full text-sm">
@@ -339,7 +362,7 @@ export default function Dashboard() {
                       </td>
                     </tr>
                   )}
-                  {events.map((e) => {
+                  {(showAllEvents ? events : events.slice(0, TABLE_LIMIT)).map((e) => {
                     const meta = SEVERITY_META[e.severity];
                     return (
                       <tr
@@ -461,7 +484,30 @@ export default function Dashboard() {
       </div>
 
       {warroomFor && (
-        <WarRoom incidentId={warroomFor} onClose={() => setWarroomFor(null)} />
+        <WarRoom
+          incidentId={warroomFor}
+          onClose={() => setWarroomFor(null)}
+          onEscalate={recordEscalation}
+        />
+      )}
+
+      {/* Escalation toasts */}
+      {escalations.length > 0 && (
+        <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-2 max-w-sm">
+          {escalations.map((e) => (
+            <div
+              key={e.at}
+              className="bg-[#B8422E] text-white px-4 py-3 rounded-[6px] shadow-lg shadow-[#B8422E]/30 border border-[#B8422E]/40 animate-pulse-once"
+            >
+              <div className="text-[10px] uppercase tracking-[0.2em] font-bold mb-1">
+                🚨 Incident escalated
+              </div>
+              <div className="text-sm">
+                <span className="font-mono">{e.id}</span> sent to response team via Stream.
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </main>
   );

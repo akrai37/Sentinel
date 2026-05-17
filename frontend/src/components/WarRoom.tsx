@@ -10,6 +10,7 @@ import {
 interface Props {
   incidentId: string;
   onClose: () => void;
+  onEscalate?: (incidentId: string) => void;
 }
 
 type State = "loading" | "joining" | "joined" | "error";
@@ -65,7 +66,7 @@ function makeRecognizer(): SpeechRecognitionLike | null {
   return r;
 }
 
-export default function WarRoom({ incidentId, onClose }: Props) {
+export default function WarRoom({ incidentId, onClose, onEscalate }: Props) {
   const [state, setState] = useState<State>("loading");
   const [error, setError] = useState<string>("");
   const [bundle, setBundle] = useState<WarroomBundle | null>(null);
@@ -134,6 +135,9 @@ export default function WarRoom({ incidentId, onClose }: Props) {
       result: ok ? `Applied: ${action}` : `Failed: ${res?.error ?? "unknown"}`,
     });
     speak(ok ? `Done. Incident ${action}d.` : "Sorry, that failed.");
+    if (ok && action === "escalate") {
+      onEscalate?.(incidentId);
+    }
   }
 
   function startListening() {

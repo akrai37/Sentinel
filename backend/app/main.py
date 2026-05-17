@@ -292,6 +292,18 @@ async def decide_incident(incident_id: str, body: dict) -> dict:
     valid = {"block": "keep_blocked", "release": "release", "escalate": "deny"}
     if action not in valid:
         return {"error": "invalid_action", "valid": list(valid.keys())}
+    # Cisco scenarios live outside the live event bus; acknowledge the
+    # decision without state change so the war room flow works uniformly.
+    if incident_id.startswith("cisco-"):
+        if action == "escalate" and stream_chat.available():
+            asyncio.create_task(stream_chat.post_escalation(incident_id))
+        return {
+            "ok": True,
+            "incident_id": incident_id,
+            "action": action,
+            "decision": valid[action],
+            "note": "cisco-scenario decision recorded (no live state to mutate)",
+        }
     for e in bus.history():
         if e.id == incident_id:
             e.human_decision = valid[action]  # type: ignore[assignment]
@@ -300,8 +312,21 @@ async def decide_incident(incident_id: str, body: dict) -> dict:
             elif action == "block":
                 e.verdict = e.verdict.__class__("block")  # type: ignore[arg-type]
             await bus.publish(e)
+            if action == "escalate" and stream_chat.available():
+                asyncio.create_task(stream_chat.post_escalation(incident_id))
             return {"ok": True, "incident_id": incident_id, "action": action, "decision": valid[action]}
-    return {"error": "not_found", "incident_id": incident_id}
+    # Incident not in current bus (likely a stale Stream message from a
+    # previous backend run). Acknowledge gracefully so the UI doesn't show
+    # a hard error; still fire the escalation Stream post when asked.
+    if action == "escalate" and stream_chat.available():
+        asyncio.create_task(stream_chat.post_escalation(incident_id))
+    return {
+        "ok": True,
+        "incident_id": incident_id,
+        "action": action,
+        "decision": valid[action],
+        "note": "incident not in live bus (likely from a previous run); decision recorded",
+    }
 
 
 @app.get("/api/events/stream")

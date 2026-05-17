@@ -22,9 +22,20 @@ export default function IncidentMessage() {
   const tool = d.sentinel_tool as string | undefined;
   const agent = d.sentinel_agent as string | undefined;
   const verdict = d.sentinel_verdict as string | undefined;
+  const escalated = d.sentinel_escalation === true;
+  const isCisco = typeof incidentId === "string" && incidentId.startsWith("cisco-");
 
   if (!incidentId) {
     return <div className="label-caps text-[#6C7278] px-3 py-2">{message.text}</div>;
+  }
+
+  // Escalation messages get a tiny banner row
+  if (escalated) {
+    return (
+      <div className="my-2 mx-2 px-3 py-2 bg-[#B8422E] text-white rounded-[6px] text-sm">
+        🚨 {message.text}
+      </div>
+    );
   }
 
   async function act(action: IncidentAction) {
@@ -36,11 +47,17 @@ export default function IncidentMessage() {
   }
 
   return (
-    <div className="my-2 mx-2 bg-white border border-[#6C7278]/20 rounded-[8px] overflow-hidden flex">
-      <div className={`w-[3px] flex-shrink-0 ${SEV_BAR[severity] ?? "bg-[#6C7278]/20"}`} />
+    <div className={`my-2 mx-2 border rounded-[8px] overflow-hidden flex ${
+      isCisco
+        ? "bg-gradient-to-br from-[#FBF1D6] to-white border-[#D49A1B]/50"
+        : "bg-white border-[#6C7278]/20"
+    }`}>
+      <div className={`w-[3px] flex-shrink-0 ${isCisco ? "bg-[#D49A1B]" : SEV_BAR[severity] ?? "bg-[#6C7278]/20"}`} />
       <div className="p-3 flex-1">
         <div className="flex items-center justify-between mb-1">
-          <span className="label-caps text-[#6C7278]">{severity}</span>
+          <span className="label-caps text-[#6C7278]">
+            {isCisco ? "🏭 Cisco · " : ""}{severity}
+          </span>
           <span className="label-caps text-[#6C7278]/40 font-mono">{incidentId}</span>
         </div>
         <div className="text-sm font-semibold text-[#1A1C1E]">
