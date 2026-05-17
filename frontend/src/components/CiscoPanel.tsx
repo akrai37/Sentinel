@@ -198,6 +198,22 @@ export default function CiscoPanel({ onOpenWarroom }: CiscoPanelProps = {}) {
                 <div className="font-mono text-sm">{rec.target}</div>
               </div>
 
+              {rec.next_steps && rec.next_steps.length > 0 && (
+                <div className="p-3 border border-[#1A8754]/40 bg-[#E6F4EA]/40 rounded-[4px]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#1A8754]" />
+                    <span className="label-caps text-[#1A8754]">Next steps · on-call playbook</span>
+                  </div>
+                  <ol className="space-y-1.5 text-sm text-[#1A1C1E] list-decimal list-inside">
+                    {rec.next_steps.map((s, i) => (
+                      <li key={i} className="leading-relaxed">
+                        {s}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
               <div className="p-3 border border-[#6C7278]/20 rounded-[4px]">
                 <div className="flex items-center justify-between mb-2">
                   <span className="label-caps text-[#6C7278]/70">Evidence</span>

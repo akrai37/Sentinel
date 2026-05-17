@@ -33,7 +33,7 @@ except Exception:
     _client = None
 
 MODEL = "claude-haiku-4-5-20251001"
-MAX_TOKENS = 600
+MAX_TOKENS = 900
 
 SYSTEM_PROMPT = """You are Sentinel, an AI-ops advisor for AI Factory infrastructure.
 
@@ -53,6 +53,14 @@ return STRICT JSON with this shape:
                  to the action: 'X is happening, the runbook says Y, so we
                  should Z'. Plain English, an on-call engineer would say it.
                  Be concise. Do not truncate the action name.>",
+  "next_steps": [
+    "<3 to 4 concrete imperative actions an on-call engineer should take
+     RIGHT NOW to execute the recommended_action. Each starts with a verb.
+     Reference the target entity by name. Examples:
+       'Roll the chat-mid-34b serving config back to the previous version.'
+       'Move all jobs off gpu-node-09 to a healthy node.'
+       'Confirm SLO recovery on chat-mid-34b within 15 minutes.'>"
+  ],
   "evidence": [
     "<3 to 5 short evidence statements grounded in the data you were shown>"
   ]
@@ -103,6 +111,7 @@ class Recommendation:
     reason_category: str
     confidence: float
     reasoning: str
+    next_steps: list[str]
     evidence: list[str]
     used_llm: bool
 
@@ -114,6 +123,7 @@ class Recommendation:
             "reason_category": self.reason_category,
             "confidence": round(self.confidence, 2),
             "reasoning": self.reasoning,
+            "next_steps": self.next_steps,
             "evidence": self.evidence,
         }
 
@@ -141,6 +151,94 @@ def _templated_reasoning(action: str, reason: str, target: str) -> str:
     if reason == "no_action":
         return f"Signals are clean for {target}; no operational change required."
     return f"Recommend {action} for {target} based on the {reason} signal pattern."
+
+
+def _templated_next_steps(action: str, target: str) -> list[str]:
+    """Defensible 3-step playbook for the heuristic-only path."""
+    t = target or "the affected entity"
+    if action == "rollback_config":
+        return [
+            f"Roll {t} back to the previous serving configuration.",
+            f"Verify rollout via deploy logs and replica readiness.",
+            f"Confirm SLO recovery on {t} within 15 minutes.",
+        ]
+    if action == "reduce_load":
+        return [
+            f"Reduce batch size or concurrency on {t}.",
+            f"Shed low-priority requests if pressure persists.",
+            f"Watch KV cache and p95 latency for the next 10 minutes.",
+        ]
+    if action == "reroute_traffic":
+        return [
+            f"Drain serving traffic away from {t}.",
+            f"Confirm healthy replicas pick up the load.",
+            f"Investigate the underlying fabric or node fault.",
+        ]
+    if action == "add_capacity":
+        return [
+            f"Add reserved capacity for {t}.",
+            f"Scale replicas to absorb the burst.",
+            f"Re-evaluate SLO after capacity comes online.",
+        ]
+    if action == "move_job":
+        return [
+            f"Move active jobs off {t} to a healthy node or rack.",
+            f"Quarantine {t} from new placements until it is inspected.",
+            f"File a hardware ticket if XID/ECC or temperature anomalies persist.",
+        ]
+    if action == "restart_from_checkpoint":
+        return [
+            f"Wait for the storage path to recover.",
+            f"Restart the affected job from the most recent checkpoint.",
+            f"Reduce checkpoint frequency or stagger jobs if storage stays slow.",
+        ]
+    if action == "reserve_full_node":
+        return [
+            f"Reserve full 8-GPU nodes for the queued large jobs.",
+            f"Hold backfill scheduling until the large jobs are admitted.",
+            f"Re-enable backfill when the queue clears.",
+        ]
+    if action == "backfill_small_jobs":
+        return [
+            f"Backfill idle GPUs with small low-priority jobs.",
+            f"Make sure backfill cannot block any queued multi-node job.",
+            f"Reassess once queue or workload mix changes.",
+        ]
+    if action == "prioritize_urgent_jobs":
+        return [
+            f"Move high-priority jobs ahead of lower-priority work.",
+            f"Notify owners of the bumped jobs.",
+            f"Audit priority labels to prevent recurrence.",
+        ]
+    if action == "avoid_unhealthy_node":
+        return [
+            f"Cordon {t} from new placements.",
+            f"Page hardware on-call to inspect {t}.",
+            f"Uncordon once health metrics recover.",
+        ]
+    if action == "escalate":
+        return [
+            f"Escalate to the on-call engineer with the failing job IDs.",
+            f"Attach the logs and signal summary for context.",
+            f"Hold further automated action until a human acknowledges.",
+        ]
+    if action == "investigate_errors":
+        return [
+            f"Inspect the recent error logs and rollout history for {t}.",
+            f"Identify whether the cause is configuration, capacity, or node health.",
+            f"Decide on a targeted action once the root cause is clear.",
+        ]
+    if action == "no_action":
+        return [
+            f"Continue monitoring {t}.",
+            f"Confirm signals stay clean over the next observation window.",
+            f"Re-evaluate if any new alerts appear.",
+        ]
+    return [
+        f"Take action: {action} on {t}.",
+        f"Confirm the signals recover after the change.",
+        f"Document the decision in the incident channel.",
+    ]
 
 
 # ---------- runbook retrieval ----------
@@ -301,6 +399,7 @@ def _heuristic(brief: dict[str, Any]) -> Recommendation:
         reason_category=reason,
         confidence=score,
         reasoning=_templated_reasoning(action, reason, focus),
+        next_steps=_templated_next_steps(action, focus),
         evidence=evidence,
         used_llm=False,
     )
@@ -365,6 +464,9 @@ async def _llm_recommend(brief: dict[str, Any]) -> Recommendation | None:
             heur.evidence = [str(e)[:240] for e in d.get("evidence", [])][:5] or heur.evidence
             if d.get("reasoning"):
                 heur.reasoning = str(d["reasoning"])[:320]
+            llm_steps = [str(s)[:240] for s in (d.get("next_steps") or [])][:4]
+            if llm_steps:
+                heur.next_steps = llm_steps
             heur.used_llm = True
             return heur
         target = str(d.get("target", s.get("focus_entity", "")))[:120]
@@ -373,6 +475,9 @@ async def _llm_recommend(brief: dict[str, Any]) -> Recommendation | None:
             str(d.get("reasoning"))[:320] if d.get("reasoning")
             else _templated_reasoning(action, reason, target)
         )
+        next_steps = [str(s)[:240] for s in (d.get("next_steps") or [])][:4]
+        if not next_steps:
+            next_steps = _templated_next_steps(action, target)
         return Recommendation(
             scenario_id=s["scenario_id"],
             recommended_action=action,
@@ -380,6 +485,7 @@ async def _llm_recommend(brief: dict[str, Any]) -> Recommendation | None:
             reason_category=reason,
             confidence=max(0.0, min(1.0, float(d.get("confidence", 0.6)))),
             reasoning=reasoning,
+            next_steps=next_steps,
             evidence=[str(e)[:240] for e in d.get("evidence", [])][:5],
             used_llm=True,
         )
