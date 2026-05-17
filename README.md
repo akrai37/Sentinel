@@ -1,18 +1,36 @@
 # Sentinel
 
-**Runtime firewall for AI agents. PagerDuty for the AI Factory.**
+**Runtime firewall for AI agents. Operations layer for the AI Factory.**
 
-Sentinel intercepts every tool call an AI agent wants to make, scores the risk, and either blocks the action or escalates to a human. The escalation surface scales with the threat: silent log, chat thread, voice triage, or full video war room.
+Sentinel watches two failure modes with the same reasoning engine: AI agents on top of infrastructure, and the GPU infrastructure underneath them. Both fail in new ways, and both need the same response shape — rank the threat, recommend the action, cite the evidence, escalate when stakes warrant.
 
-Built for Hack-A-Stack 2026 at Santa Clara University.
+Built for Hack-A-Stack 2026 at Santa Clara University, Endurance Track.
 
 ---
 
 ## The problem
 
-AI agents now have production access. Databases, file systems, code execution, the same permissions as a senior engineer. They fail in new ways: prompt injections hijack behavior through poisoned documents, runaway loops burn compute, hallucinated commands drop tables. These failures look like ordinary agent activity in logs, and by the time a human notices, the damage is done.
+AI factories run two things on top of GPUs: AI agents, and the infrastructure underneath them. Both fail in new ways, and the tools that exist today are split. Detection libraries flag threats but never act (Lakera, NeMo, Llama Guard). Observability platforms log incidents after the damage is done (LangSmith, Helicone). Cluster monitoring catches GPU memory and network problems but does not understand LLM semantics. Engineers stitch three or four panes of glass together, often at 3 AM, while an agent quietly drops a production table or a model serving config crashes a customer endpoint.
 
-Existing tools either log threats after the fact (LangSmith, Helicone) or flag them without acting (Lakera, NeMo, Llama Guard). Sentinel sits inline and actually stops things from happening.
+Sentinel exists because the response to an agent attempting to delete a database should not look fundamentally different from the response to a GPU node overheating. Both are operational incidents. Both need the same answer: what happened, why, what action to take, who to wake up.
+
+---
+
+## Two layers, one engine
+
+### Layer 1 — Agent firewall
+
+Every tool call an AI agent makes is intercepted, scored by a two-tier ranker (regex heuristics first, Claude Haiku for the ambiguous middle band), and routed by severity. Critical events auto-block. High severity opens a war room. Medium events post to a Stream chat channel with action buttons. Our labeled eval set of 36 examples reports **100% precision, 95% recall, F1 0.97** — live in the dashboard footer.
+
+### Layer 2 — AI Factory operations
+
+Sentinel ingests Cisco's AI Factory dataset (18 scenarios across performance, GPU placement, and failure detection), reads alerts, logs, and runbooks, and returns Cisco's required structured recommendation: action, target, reason category, confidence, evidence. Each recommendation also includes a plain-English reasoning sentence and a three-step on-call playbook with specific thresholds. All 18 scenarios pass Cisco's official `validate_recommendation.py --require-all` validator.
+
+### Cross-layer escalation
+
+Both layers share the same downstream surfaces. A Stream incident feed with filter tabs (All / Agent / Cisco / Escalations) is the audit log. The same MCP server exposes voice triage for both layers. The same Google Meet war room spawns for critical events on either layer.
+
+---
 
 ## How it works
 
@@ -35,79 +53,115 @@ Existing tools either log threats after the fact (LangSmith, Helicone) or flag t
                             └────────┬─────────┘
               ┌───────────────┬──────┴────────┬─────────────────┐
               ▼               ▼               ▼                 ▼
-          log only      Stream chat      VoiceOS MCP        TRTC war room
-          (low)         (medium)         (high)             (critical)
+          log only      Stream chat      VoiceOS MCP        Google Meet
+          (low)         (medium)         (high)             war room (critical)
 ```
+
+Cisco scenarios flow through the same severity router. A high-severity infrastructure recommendation triggers the same Stream channel and war room a critical agent attack would.
+
+---
 
 ## Severity routing
 
-| Tier      | Surface                                                       | Sponsor          |
-| --------- | ------------------------------------------------------------- | ---------------- |
-| Low       | Dashboard log only                                            | -                |
-| Medium    | Auto created incident channel with approve / deny buttons     | **Stream**       |
-| High      | Voice triage via MCP, ask Sentinel and tell it what to do     | **VoiceOS**      |
-| Critical  | Auto spawned video war room any responder can join            | **Tencent TRTC** |
+| Tier | Surface | Sponsor |
+|---|---|---|
+| Low | Dashboard log only | — |
+| Medium | Auto-created incident channel with approve/deny buttons | **Stream** |
+| High | Voice triage via MCP — ask Sentinel, tell it what to do | **VoiceOS** |
+| Critical | Auto-spawned video war room any responder can join | **Google Meet** (Tencent TRTC UserSig minting also implemented) |
 
-Plus **Anthropic Claude Haiku** powering the LLM tier of the ranker.
+Plus **Anthropic Claude Haiku** powering the LLM tier of the ranker, and **Cisco's AI Factory dataset** as the Layer 2 ground truth.
+
+---
 
 ## Demo flow
 
+**Layer 1 — agent attack**
 1. Dashboard streams intercepted events in real time
-2. Click `Fire demo attack`. An agent attempts `DROP TABLE users`
-3. Ranker scores it 0.97, policy auto blocks, severity routes to Critical
-4. Red banner appears with a `Join war room` button
-5. Click it. TRTC video opens, browser TTS reads the incident brief
-6. Engineer clicks Release, Keep blocked, or Escalate. Verdict propagates back to the dashboard and the Stream channel in real time
+2. Click *Fire demo attack*. An agent attempts `DROP TABLE users`
+3. Ranker scores it 0.97, policy auto-blocks, severity routes to Critical
+4. Red banner appears with action buttons
+5. Verdict propagates back to the dashboard and the Stream channel in real time
 
-In parallel, ask VoiceOS from another window: *"what's the latest critical?"* It reads the incident aloud through our MCP server.
+**Layer 2 — Cisco scenario**
+1. Open the Cisco panel, pick scenario `perf-001`
+2. Click *Evaluate with Sentinel*
+3. Recommendation card returns: action, target, reason, confidence, evidence
+4. Green *Next steps* card shows a three-step on-call playbook with thresholds
+5. Click the ✓ *Cisco validator passed* pill to see the validator output
+6. Click *Page on-call* — Cisco recommendation hits the Stream channel
+7. Click *Open war room* — Google Meet spins up, link goes to Stream
+
+**Voice**
+- From VoiceOS, say *"what's the latest critical?"* — Sentinel reads the agent incident aloud
+- Say *"evaluate scenario fail-005"* — Sentinel reads the Cisco recommendation aloud
+- Same MCP server, both layers, hands-free
+
+---
 
 ## Eval
 
-A 36 example labeled set runs on server boot. Live metrics show in the dashboard footer.
+A 36-example labeled set runs on server boot. Live metrics show in the dashboard footer.
 
-Current numbers:
+| Metric | Heuristics only | + LLM (Haiku) |
+|---|---|---|
+| Precision | 100% | **100%** |
+| Recall | 84% | **95%** |
+| F1 | 0.91 | **0.97** |
 
-| Metric    | Heuristics only | + LLM (Haiku) |
-| --------- | --------------- | ------------- |
-| Precision | 100%            | **100%**      |
-| Recall    | 84%             | **95%**       |
-| F1        | 0.91            | **0.97**      |
+Cisco validator (Layer 2): all 18 scenarios pass `validate_recommendation.py --require-all`.
 
-Run manually:
-
+Run agent eval:
 ```bash
 cd backend
 source .venv/bin/activate
 python -m app.eval.harness
 ```
 
+Run Cisco validator:
+```bash
+cd backend/cisco_data/ai_factory_hackathon_student
+python validate_recommendation.py ../../sentinel_recommendations.json --require-all
+```
+
+---
+
 ## Architecture decisions
 
-**Two tier ranker.** Most traffic resolves at Tier A (regex heuristics) in microseconds. Only the ambiguous band (score roughly 0.20-0.70) escalates to Tier B (Claude Haiku). Results cached by call fingerprint. Falls back gracefully when no API key is set.
+**Two-tier ranker.** Most traffic resolves at Tier A (regex heuristics) in microseconds. Only the ambiguous band (score roughly 0.20–0.70) escalates to Tier B (Claude Haiku). Results cached by call fingerprint. Falls back gracefully when no API key is set.
 
-**MCP first.** Sentinel exposes its operational surface as a Python MCP server. VoiceOS picks it up via stdio and routes voice commands to our tools. Same protocol Sentinel defends.
+**Same engine, two signal streams.** The Cisco advisor is a separate module but shares the LLM client, the structured-output pattern, the severity router, and the downstream channels (Stream, VoiceOS, war room). A Cisco recommendation looks like an agent incident from the response surface's point of view.
 
-**In memory event bus.** 50k ring buffer. Survives the demo, would persist to Postgres in production.
+**MCP-first.** Sentinel exposes its operational surface as a Python MCP server with 8 tools (`incidents_lookup`, `incidents_decide`, `sentinel_status`, `cisco_scenarios`, `cisco_evaluate`, `warroom_create_meet`, `current_meet_link`, `warroom_invite`). VoiceOS picks it up via stdio and routes voice commands to our tools. Same protocol Sentinel defends.
+
+**In-memory event bus.** 50k ring buffer with SSE streaming to the dashboard. Survives the demo. Would persist to Postgres in production.
+
+**Graceful degradation.** Missing API keys hide the corresponding UI without breaking the app. The demo runs end-to-end with no credentials at all.
 
 **No auth.** Anyone with dashboard access can decide. v2 work, called out in the pitch.
 
+---
+
 ## Stack
 
-| Layer    | Tech                                                                                |
-| -------- | ----------------------------------------------------------------------------------- |
-| Backend  | FastAPI, Pydantic, SSE, in memory event bus                                         |
-| Ranker   | regex heuristics + Claude Haiku (`anthropic` Python SDK)                            |
-| Eval     | Python, JSON labels, exposed at `/api/eval`                                         |
-| Frontend | Next.js 16, Tailwind 4, React 19, TypeScript                                        |
-| Chat     | `stream-chat` + `stream-chat-react` v14                                             |
-| Video    | `trtc-sdk-v5` web SDK, HMAC SHA256 signed UserSigs                                  |
-| Voice    | Python `mcp[cli]` stdio server registered with VoiceOS Custom Integrations          |
-| Optional | `twilio` outbound calls (gracefully disabled without creds)                         |
+| Layer | Tech |
+|---|---|
+| Backend | FastAPI, Pydantic, SSE, in-memory event bus |
+| Ranker (Tier A) | regex heuristics, allow/denylists |
+| Ranker (Tier B) | Claude Haiku via anthropic Python SDK |
+| Cisco advisor | Heuristic routing by primary alert + LLM enrichment for reasoning + next steps |
+| Eval | Python, JSON labels, exposed at `/api/eval` |
+| Frontend | Next.js 16, Tailwind 4, React 19, TypeScript |
+| Chat | stream-chat (server) + stream-chat-react v14 |
+| Video | Google Meet (pre-provisioned room link); Tencent TRTC HMAC-SHA256 UserSig minting also implemented |
+| Voice | Python `mcp[cli]` stdio server registered with VoiceOS Custom Integrations |
+| Optional | twilio outbound calls (gracefully disabled without creds) |
+
+---
 
 ## Running locally
 
 ### Backend
-
 ```bash
 cd backend
 python -m venv .venv && source .venv/bin/activate
@@ -115,43 +169,47 @@ pip install -r requirements.txt
 cp .env.example .env  # fill in keys you have
 uvicorn app.main:app --reload --port 8000
 ```
-
 Synthetic traffic starts automatically.
 
 ### Frontend
-
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000).
+Open http://localhost:3000.
 
 ### Optional sponsor creds (`backend/.env`)
-
 ```
-ANTHROPIC_API_KEY=        # enables Tier B LLM ranker
+ANTHROPIC_API_KEY=        # enables Tier B LLM ranker + Cisco reasoning
 STREAM_API_KEY=           # enables incident chat panel
 STREAM_API_SECRET=
-TRTC_SDK_APP_ID=          # enables war room
+TRTC_SDK_APP_ID=          # enables TRTC UserSig minting
 TRTC_SDK_SECRET_KEY=
+GOOGLE_MEET_LINK=         # war room Meet room
 TWILIO_ACCOUNT_SID=       # optional outbound calls
 TWILIO_AUTH_TOKEN=
 TWILIO_FROM_NUMBER=
 TWILIO_ONCALL_NUMBER=
 ```
-
 Everything degrades gracefully. Missing keys hide the corresponding UI without breaking the app.
 
-### Register Sentinel with VoiceOS
+---
+
+## Register Sentinel with VoiceOS
 
 1. Ensure backend is running
 2. In VoiceOS: *Settings → Integrations → Custom Integrations → Add*
 3. Name: `Sentinel`
 4. Launch command: `<absolute path>/backend/start.sh`
 
-Then say: *"what's the latest critical?"* or *"release incident <id>"*.
+Then say:
+- *"what's the latest critical?"*
+- *"evaluate scenario perf-001"*
+- *"release incident 42"*
+- *"send the war room link to chu2@scu.edu"*
+
+---
 
 ## Project structure
 
@@ -164,18 +222,26 @@ backend/
     heuristics.py          # Tier A rules
     llm_classifier.py      # Tier B Haiku
     policy.py              # score -> severity -> verdict
-    event_bus.py           # in memory pub/sub + SSE
+    event_bus.py           # in-memory pub/sub + SSE
     schemas.py             # Pydantic models
-    mcp_server.py          # MCP stdio server for VoiceOS
+    mcp_server.py          # MCP stdio server for VoiceOS (8 tools)
+    cisco/
+      advisor.py           # Layer 2 Cisco scenario evaluator
+      data.py              # scenario loader (CSV -> dict)
     escalation/
       stream.py            # Stream Chat client
-      trtc.py              # TRTC UserSig + war room
+      trtc.py              # TRTC UserSig minting
+      google_meet.py       # Google Meet war room
       twilio_call.py       # optional outbound call
     eval/
       dataset.py           # labeled examples
       harness.py           # precision / recall / F1 report
     data/
       synthetic_traces.py  # mock traffic generator
+  cisco_data/              # Cisco-provided dataset + validator
+    ai_factory_hackathon_student/
+      validate_recommendation.py
+      data/public/evaluation_scenarios.csv
   start.sh                 # MCP launch script for VoiceOS
 
 frontend/
@@ -184,16 +250,42 @@ frontend/
     lib/api.ts             # backend client
     lib/useEventStream.ts  # SSE hook
     components/
-      WarRoom.tsx          # TRTC modal + TTS + STT
-      StreamPanel.tsx      # embedded chat
+      WarRoom.tsx          # Google Meet war room modal + TTS
+      StreamPanel.tsx      # embedded chat with filter tabs
+      StreamFilterContext.tsx  # filter state for All/Agent/Cisco/Escalations
       IncidentMessage.tsx  # custom Stream message UI
+      CiscoPanel.tsx       # Layer 2 scenario evaluator (+ inline ValidatorModal)
 ```
+
+---
 
 ## What's next
 
-- Real JSON RPC MCP proxy in front of production agent fleets (currently schema compatible interceptor)
-- Per customer fine tuned classifiers trained on their own agent traces
-- Fleet wide firewall rule generation from observed attacks
-- Role based decision authorization, audit logs, multi party approval for highest stakes blocks
+- **Real JSON-RPC MCP proxy** in front of production agent fleets (current interceptor is schema-compatible)
+- **Per-customer fine-tuned classifiers** trained on customer-specific agent traces
+- **Fleet-wide firewall rule generation** from observed attacks across the agent fleet
+- **Closed-loop remediation on Layer 2** — Sentinel executes its own recommendations after human approval, with rollback and audit
+- **Role-based authorization and multi-party approval** for highest-stakes blocks
+- **Deeper Cisco integration** — beyond evaluation, integrate with live Cisco infrastructure telemetry
 
-Every company deploying agents in 2026 will need this layer.
+Every company deploying AI agents in 2026 will need this layer.
+
+---
+
+## Team
+
+Built at Hack-A-Stack 2026, Santa Clara University.
+
+- [Ankush Rai](https://github.com/akrai37)
+- [Harshvardhan Garude](https://github.com/Harshvardhan-Garude)
+- [Ray Hu](https://github.com/chu2)
+
+---
+
+## Sponsors
+
+- **Cisco** — AI Factory dataset, validator, Endurance Track sponsor
+- **Anthropic** — Claude Haiku powers the LLM tier of the ranker
+- **Stream** — Real-time incident audit log with action-button cards
+- **VoiceOS** — MCP custom integration for hands-free voice triage
+- **Tencent TRTC** — UserSig minting implemented (Google Meet used in demo for cross-network reliability)
