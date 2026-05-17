@@ -19,35 +19,39 @@ const StreamPanel = dynamic(() => import("@/components/StreamPanel"), { ssr: fal
 
 const SEVERITY_META: Record<
   Severity,
-  { label: string; dot: string; bar: string; badge: string; row: string }
+  { label: string; dot: string; bar: string; badge: string; row: string; tile: string }
 > = {
   critical: {
     label: "Critical",
     dot: "bg-[#B8422E]",
     bar: "bg-[#B8422E]",
     badge: "bg-[#B8422E] text-white",
-    row: "bg-[#B8422E]/[0.03]",
+    row: "bg-[#B8422E]/[0.05]",
+    tile: "bg-gradient-to-br from-[#FCE9E2] to-white border-[#B8422E]/30",
   },
   high: {
     label: "High",
-    dot: "bg-[#1A1C1E]",
-    bar: "bg-[#1A1C1E]",
-    badge: "bg-[#1A1C1E] text-white",
-    row: "",
+    dot: "bg-[#E8743C]",
+    bar: "bg-[#E8743C]",
+    badge: "bg-[#E8743C] text-white",
+    row: "bg-[#E8743C]/[0.04]",
+    tile: "bg-gradient-to-br from-[#FDEEDF] to-white border-[#E8743C]/30",
   },
   medium: {
     label: "Medium",
-    dot: "bg-[#6C7278]",
-    bar: "bg-[#6C7278]",
-    badge: "bg-[#6C7278] text-white",
-    row: "",
+    dot: "bg-[#D49A1B]",
+    bar: "bg-[#D49A1B]",
+    badge: "bg-[#D49A1B] text-white",
+    row: "bg-[#D49A1B]/[0.04]",
+    tile: "bg-gradient-to-br from-[#FBF1D6] to-white border-[#D49A1B]/30",
   },
   low: {
     label: "Low",
-    dot: "bg-[#6C7278]/30",
-    bar: "bg-[#6C7278]/20",
-    badge: "border border-[#6C7278]/40 text-[#6C7278]",
+    dot: "bg-[#4F8C66]",
+    bar: "bg-[#4F8C66]/40",
+    badge: "border border-[#4F8C66]/50 text-[#4F8C66]",
     row: "",
+    tile: "bg-gradient-to-br from-[#E6EFE9] to-white border-[#4F8C66]/25",
   },
 };
 
@@ -107,7 +111,7 @@ export default function Dashboard() {
   );
 
   return (
-    <main className="min-h-screen bg-[#F7F5F2] text-[#1A1C1E]">
+    <main className="min-h-screen bg-gradient-to-b from-[#F7F5F2] via-[#F4F0EA] to-[#EFE9E0] text-[#1A1C1E]">
       <div className="max-w-[1400px] mx-auto px-6 py-8">
 
         {/* Header */}
@@ -137,9 +141,9 @@ export default function Dashboard() {
             return (
               <div
                 key={s}
-                className="bg-white border border-[#6C7278]/15 rounded-[8px] overflow-hidden flex"
+                className={`border rounded-[8px] overflow-hidden flex transition-transform hover:scale-[1.02] ${meta.tile}`}
               >
-                <div className={`w-[3px] flex-shrink-0 ${meta.bar}`} />
+                <div className={`w-[4px] flex-shrink-0 ${meta.bar}`} />
                 <div className="p-5 flex-1">
                   <div className="flex items-center gap-2 mb-3">
                     <span className={`w-2 h-2 rounded-full ${meta.dot}`} />
@@ -155,8 +159,8 @@ export default function Dashboard() {
 
         {/* Critical banner */}
         {latestCritical && stats?.trtc?.available && (
-          <section className="mb-8 bg-white border border-[#6C7278]/15 rounded-[8px] overflow-hidden flex">
-            <div className="w-[3px] flex-shrink-0 bg-[#B8422E]" />
+          <section className="mb-8 bg-gradient-to-r from-[#FCE9E2] via-white to-white border border-[#B8422E]/40 rounded-[8px] overflow-hidden flex shadow-sm shadow-[#B8422E]/10">
+            <div className="w-[4px] flex-shrink-0 bg-[#B8422E]" />
             <div className="px-5 py-4 flex items-center gap-4 flex-1">
               <div className="flex-1">
                 <div className="label-caps text-[#B8422E] mb-1">
