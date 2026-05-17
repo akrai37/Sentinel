@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import {
+  createMeetWarroom,
   decideIncident,
   openWarroom,
   type IncidentAction,
@@ -73,13 +74,30 @@ export default function WarRoom({ incidentId, onClose, onEscalate }: Props) {
   const [decision, setDecision] = useState<DecisionState>(null);
   const [transcript, setTranscript] = useState<string>("");
   const [listening, setListening] = useState(false);
-  const trtcRef = useRef<{ exitRoom: () => Promise<void> } | null>(null);
-  const localVideoRef = useRef<HTMLDivElement>(null);
+  const [selectedEmails, setSelectedEmails] = useState<Set<string>>(
+    new Set(["chu2@scu.edu", "hgarude@scu.edu"])
+  );
+  const [extraEmail, setExtraEmail] = useState<string>("");
+  const [inviteSent, setInviteSent] = useState<string | null>(null);
+
+  const PRESET_EMAILS = ["chu2@scu.edu", "hgarude@scu.edu"];
+
+  function toggleEmail(email: string) {
+    setSelectedEmails((prev) => {
+      const next = new Set(prev);
+      if (next.has(email)) next.delete(email);
+      else next.add(email);
+      return next;
+    });
+  }
+  const [meetLink, setMeetLink] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     async function join() {
+      // Pull incident context (same endpoint as before, returns the
+      // incident metadata we render in the brief)
       const b = await openWarroom(incidentId);
       if (cancelled) return;
       if (b.error) {
@@ -90,23 +108,14 @@ export default function WarRoom({ incidentId, onClose, onEscalate }: Props) {
       setBundle(b);
       setState("joining");
 
+      // Provision the Google Meet war room and open it in a new tab
       try {
-        const TRTC = (await import("trtc-sdk-v5")).default;
-        const trtc = TRTC.create();
-        trtcRef.current = trtc as unknown as { exitRoom: () => Promise<void> };
-        await trtc.enterRoom({
-          sdkAppId: b.sdk_app_id,
-          userId: b.user_id,
-          userSig: b.user_sig,
-          strRoomId: b.room_id,
-        });
-        await trtc.startLocalAudio();
-        if (localVideoRef.current) {
-          await trtc.startLocalVideo({ view: localVideoRef.current });
-        }
-        if (cancelled) {
-          await trtc.exitRoom();
-          return;
+        const meet = await createMeetWarroom(incidentId);
+        if (cancelled) return;
+        if (meet?.meet_link) {
+          setMeetLink(meet.meet_link);
+          // Auto-open the Meet tab so engineers can join immediately
+          window.open(meet.meet_link, "_blank", "noopener");
         }
         setState("joined");
         speak(briefText(b));
@@ -120,7 +129,6 @@ export default function WarRoom({ incidentId, onClose, onEscalate }: Props) {
 
     return () => {
       cancelled = true;
-      trtcRef.current?.exitRoom().catch(() => {});
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
@@ -138,6 +146,58 @@ export default function WarRoom({ incidentId, onClose, onEscalate }: Props) {
     if (ok && action === "escalate") {
       onEscalate?.(incidentId);
     }
+  }
+
+  function inviteUrl(): string {
+    if (typeof window === "undefined") return "";
+    // Use the LAN host so the link works from other devices on the same wifi,
+    // not just from this machine's localhost. Override with NEXT_PUBLIC_INVITE_HOST.
+    const lanHost =
+      process.env.NEXT_PUBLIC_INVITE_HOST ?? "192.168.56.1:3000";
+    const u = new URL(window.location.href);
+    u.host = lanHost;
+    u.protocol = "http:";
+    u.searchParams.set("warroom", incidentId);
+    return u.toString();
+  }
+
+  function sendInvite() {
+    const recipients = Array.from(selectedEmails);
+    const extra = (extraEmail || "").trim();
+    if (extra && /\S+@\S+\.\S+/.test(extra)) recipients.push(extra);
+    if (recipients.length === 0) {
+      setInviteSent("Pick at least one recipient");
+      return;
+    }
+    const url = inviteUrl();
+    const subject = encodeURIComponent(
+      `Sentinel war room — incident ${incidentId}`
+    );
+    const body = encodeURIComponent(
+      `You're invited to a Sentinel war room.\n\n` +
+      `Incident: ${incidentId}\n` +
+      (bundle ? `Tool: ${bundle.incident.tool}\nAgent: ${bundle.incident.agent}\nRationale: ${bundle.incident.rationale}\n\n` : "\n") +
+      `Click to join: ${url}\n`
+    );
+    const to = recipients.map((r) => encodeURIComponent(r)).join(",");
+    const href = `mailto:${to}?subject=${subject}&body=${body}`;
+    // Use a programmatic anchor click — most reliable across browsers/OSes
+    const a = document.createElement("a");
+    a.href = href;
+    a.rel = "noopener";
+    a.target = "_self";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setInviteSent(`Mail draft opened for ${recipients.length} recipient${recipients.length > 1 ? "s" : ""} — if nothing happened, set a default mail app or use Copy link`);
+  }
+
+  function copyLink() {
+    if (typeof window === "undefined") return;
+    navigator.clipboard?.writeText(inviteUrl()).then(
+      () => setInviteSent("Invite link copied"),
+      () => setInviteSent("Copy failed; select the URL bar manually"),
+    );
   }
 
   function startListening() {
@@ -273,33 +333,87 @@ export default function WarRoom({ incidentId, onClose, onEscalate }: Props) {
             </div>
           </div>
 
-          {/* Right: video */}
+          {/* Right: Google Meet panel */}
           <div>
             <div className="label-caps text-[#6C7278] mb-3">
-              Local video
-              {state === "joined" && (
-                <span className="text-emerald-600"> · connected</span>
+              Google Meet
+              {state === "joined" && meetLink && (
+                <span className="text-emerald-600"> · open in new tab</span>
               )}
             </div>
-            <div
-              ref={localVideoRef}
-              className="bg-[#1A1C1E] rounded-[8px] aspect-video border border-[#6C7278]/15 flex items-center justify-center"
-            >
+            <div className="bg-gradient-to-br from-[#E6F4EA] to-white rounded-[8px] aspect-video border border-[#1A8754]/30 flex flex-col items-center justify-center p-4">
               {state === "loading" && (
-                <span className="label-caps text-[#6C7278]/50">Provisioning room…</span>
+                <span className="label-caps text-[#6C7278]/50">Provisioning Meet…</span>
               )}
               {state === "joining" && (
-                <span className="label-caps text-[#6C7278]/50">Joining TRTC room…</span>
+                <span className="label-caps text-[#6C7278]/50">Opening Meet…</span>
+              )}
+              {state === "joined" && meetLink && (
+                <>
+                  <div className="text-4xl mb-3">🟢</div>
+                  <div className="text-sm text-[#1A1C1E] font-semibold mb-1">
+                    Meet war room is live
+                  </div>
+                  <a
+                    href={meetLink}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-xs font-mono text-[#1A8754] hover:underline break-all px-2 text-center"
+                  >
+                    {meetLink}
+                  </a>
+                </>
               )}
               {state === "error" && (
                 <span className="label-caps text-[#B8422E]">Error: {error}</span>
               )}
             </div>
-            {bundle && (
-              <div className="label-caps text-[#6C7278]/40 mt-2 font-mono break-all">
-                room: {bundle.room_id}
+
+            {/* Invite */}
+            <div className="mt-4 pt-4 border-t border-[#6C7278]/15">
+              <div className="label-caps text-[#6C7278] mb-2">Invite responders</div>
+              <div className="space-y-1.5 mb-2">
+                {PRESET_EMAILS.map((email) => (
+                  <label
+                    key={email}
+                    className="flex items-center gap-2 text-sm cursor-pointer hover:text-[#1A1C1E] text-[#6C7278]"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedEmails.has(email)}
+                      onChange={() => toggleEmail(email)}
+                      className="accent-[#1A1C1E]"
+                    />
+                    <span className="font-mono">{email}</span>
+                  </label>
+                ))}
               </div>
-            )}
+              <input
+                type="email"
+                placeholder="add another email (optional)"
+                value={extraEmail}
+                onChange={(e) => setExtraEmail(e.target.value)}
+                className="w-full px-2.5 py-1.5 border border-[#6C7278]/30 rounded-[4px] text-sm bg-white font-mono mb-2"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={sendInvite}
+                  className="flex-1 px-3 py-1.5 bg-[#1A1C1E] hover:bg-[#2d3035] text-white rounded-[4px] text-sm font-semibold transition-colors"
+                >
+                  Email invite
+                </button>
+                <button
+                  onClick={copyLink}
+                  className="px-3 py-1.5 border border-[#6C7278]/35 hover:border-[#6C7278] rounded-[4px] text-sm text-[#6C7278] transition-colors"
+                  title="Copy join link to clipboard"
+                >
+                  Copy link
+                </button>
+              </div>
+              {inviteSent && (
+                <div className="mt-2 text-xs text-emerald-700">✓ {inviteSent}</div>
+              )}
+            </div>
           </div>
         </div>
       </div>

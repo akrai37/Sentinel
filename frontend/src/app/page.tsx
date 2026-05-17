@@ -128,6 +128,12 @@ export default function Dashboard() {
     fetchEval().then(setEvalM).catch(() => {});
     fetchStats().then(setStats).catch(() => {});
     const t = setInterval(() => fetchStats().then(setStats).catch(() => {}), 3000);
+    // Auto-join a war room when invited via ?warroom=<incident_id>
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const room = params.get("warroom");
+      if (room) setWarroomFor(room);
+    }
     return () => clearInterval(t);
   }, []);
 
@@ -466,6 +472,10 @@ export default function Dashboard() {
             label="Cisco"
             ok={stats?.cisco?.available}
             detail={stats?.cisco?.scenarios ? `${stats.cisco.scenarios} scenarios` : undefined}
+          />
+          <StatusPill
+            label="Meet"
+            ok={stats?.google_meet?.available}
           />
 
           {evalM && (

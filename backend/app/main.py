@@ -25,6 +25,7 @@ from . import llm_classifier
 from .cisco import advisor as cisco_advisor
 from .cisco import data as cisco_data
 from .data.synthetic_traces import emit_demo_attack, stream_traces
+from .escalation import google_meet
 from .escalation import stream as stream_chat
 from .escalation import trtc
 from .escalation import twilio_call
@@ -90,6 +91,7 @@ async def stats() -> dict:
         "trtc": {"available": trtc.available()},
         "stream": {"available": stream_chat.available()},
         "twilio": twilio_call.status(),
+        "google_meet": google_meet.status(),
         "cisco": {
             "available": cisco_data.available(),
             "scenarios": len(cisco_data.scenarios()) if cisco_data.available() else 0,
@@ -137,6 +139,99 @@ async def evaluate_all_cisco() -> dict:
         return {"error": "cisco_data_unavailable", "results": []}
     results = await cisco_advisor.recommend_all()
     return {"count": len(results), "results": results}
+
+
+@app.get("/api/warroom/google-meet/status")
+async def google_meet_status() -> dict:
+    return google_meet.status()
+
+
+@app.post("/api/warroom/google-meet")
+async def create_google_meet_warroom(body: dict | None = None) -> dict:
+    """Create or reuse a Google Meet war room for an incident.
+
+    body = { incident_id?: str, title?: str, description?: str,
+              attendees?: list[str] }
+    Falls back to the latest critical incident if incident_id is omitted.
+    """
+    body = body or {}
+    incident_id = body.get("incident_id")
+    if not incident_id:
+        # Pull the most-recent critical incident from the bus, if any
+        for e in reversed(bus.history()):
+            if e.severity.value == "critical":
+                incident_id = e.id
+                break
+    # Pull incident/Cisco context for description
+    description = body.get("description") or ""
+    if incident_id and not description:
+        # Live agent incident?
+        live = next((e for e in bus.history() if e.id == incident_id), None)
+        if live is not None:
+            description = (
+                f"{live.severity.value.upper()} incident · "
+                f"{live.call.tool_name} by {live.call.agent_id}\n"
+                f"{live.assessment.rationale}"
+            )
+        elif incident_id.startswith("cisco-") and cisco_data.available():
+            scenario_id = incident_id.replace("cisco-", "")
+            rec = await cisco_advisor.recommend(scenario_id)
+            if rec is not None:
+                description = (
+                    f"Cisco scenario {scenario_id} · "
+                    f"action: {rec['recommended_action']} · "
+                    f"target: {rec['target']}\n"
+                    f"{rec.get('reasoning', '')}"
+                )
+
+    result = google_meet.create_warroom(
+        incident_id=incident_id,
+        title=body.get("title"),
+        description=description,
+        attendees=body.get("attendees") or [],
+    )
+
+    # Best-effort post to the Stream channel so the link is visible
+    if result.get("meet_link") and stream_chat.available():
+        try:
+            await stream_chat.post_escalation(
+                incident_id or "latest",
+                note=(
+                    f"🟢 Google Meet war room ready · {result['meet_link']}\n"
+                    f"{description}"
+                ),
+            )
+        except Exception:
+            pass
+
+    return result
+
+
+@app.get("/api/warroom/google-meet/current")
+async def current_google_meet() -> dict:
+    """Return the active Meet link and any open war rooms."""
+    info = google_meet.status()
+    info["open_rooms"] = list(google_meet._rooms.keys())  # type: ignore[attr-defined]
+    return info
+
+
+@app.post("/api/warroom/google-meet/invite")
+async def invite_to_google_meet(body: dict) -> dict:
+    """Add one or more people (names or emails) to an existing war room."""
+    incident_id = body.get("incident_id") or "latest"
+    people = body.get("people") or []
+    if isinstance(people, str):
+        people = [people]
+    result = google_meet.add_attendees(incident_id, [str(p) for p in people])
+    if result.get("ok") and result.get("new") and stream_chat.available():
+        try:
+            await stream_chat.post_escalation(
+                incident_id,
+                note=f"➕ Added to Google Meet war room: {', '.join(result['new'])}",
+            )
+        except Exception:
+            pass
+    return result
 
 
 @app.post("/api/cisco/escalate/{scenario_id}")

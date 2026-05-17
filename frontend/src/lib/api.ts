@@ -1,5 +1,5 @@
-export const API_BASE =
-  process.env.NEXT_PUBLIC_SENTINEL_API ?? "http://localhost:8000";
+// Empty string -> same-origin requests (proxied by Next.js to localhost:8000)
+export const API_BASE = process.env.NEXT_PUBLIC_SENTINEL_API ?? "";
 
 export async function fireDemoAttack() {
   await fetch(`${API_BASE}/api/demo/attack`, { method: "POST" });
@@ -74,6 +74,26 @@ export async function openCiscoWarroom(id: string): Promise<CiscoWarroomBundle> 
   return r.json();
 }
 
+export interface MeetWarroom {
+  provider: string;
+  incident_id?: string;
+  meet_link?: string;
+  attendees?: string[];
+  created?: boolean;
+  reused?: boolean;
+  message?: string;
+  available?: boolean;
+}
+
+export async function createMeetWarroom(incidentId?: string): Promise<MeetWarroom> {
+  const r = await fetch(`${API_BASE}/api/warroom/google-meet`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(incidentId ? { incident_id: incidentId } : {}),
+  });
+  return r.json();
+}
+
 export interface Stats {
   traffic_running: boolean;
   events_seen: number;
@@ -86,6 +106,7 @@ export interface Stats {
     oncall_number: string | null;
   };
   cisco?: { available: boolean; scenarios: number };
+  google_meet?: { available: boolean; meet_link: string | null; mode: string };
 }
 
 export interface EvalMetrics {

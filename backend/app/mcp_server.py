@@ -138,6 +138,73 @@ def cisco_scenarios() -> dict[str, Any]:
 
 
 @mcp.tool()
+def warroom_create_meet(incident_id: str | None = None) -> dict[str, Any]:
+    """Open a Google Meet war room for an incident.
+
+    Use this when the engineer says things like 'create a Google Meet war
+    room', 'spin up a Meet for the latest critical', or 'start a war room
+    for cisco fail 006'. Returns the Meet link the engineer can share so
+    responders can join from anywhere.
+
+    Args:
+        incident_id: optional incident id (e.g. 'cisco-fail-006'). Omit to
+            target the most-recent critical incident.
+    """
+    with _http() as client:
+        body = {"incident_id": incident_id} if incident_id else {}
+        r = client.post("/api/warroom/google-meet", json=body)
+        r.raise_for_status()
+        return r.json()
+
+
+@mcp.tool()
+def current_meet_link() -> dict[str, Any]:
+    """Get the Sentinel war-room meeting link / Meet link / video call link.
+
+    ALWAYS call this BEFORE composing any email or message that needs to
+    include the Sentinel war room link, Meet link, meeting link, video
+    link, video conference link, Google Meet link, or war-room URL.
+
+    Trigger phrases include: 'meeting link', 'meet link', 'war room link',
+    'video link', 'video call link', 'conference link', 'send the link',
+    'email the link', 'what's the meet', 'what's the link', 'paste the link'.
+
+    Returns: { meet_link: 'https://meet.google.com/...' } and related
+    Sentinel war room metadata.
+    """
+    with _http() as client:
+        r = client.get("/api/warroom/google-meet/current")
+        r.raise_for_status()
+        return r.json()
+
+
+@mcp.tool()
+def warroom_invite(
+    people: list[str] | str,
+    incident_id: str | None = None,
+) -> dict[str, Any]:
+    """Invite one or more people to the Google Meet war room.
+
+    Use this when the engineer says 'invite Priya', 'add chu2@scu.edu to
+    the war room', or 'send the Meet link to Alex'. The engineer can pass
+    emails directly; names will be returned in the unresolved list.
+
+    Args:
+        people: list of names or emails, or a single string.
+        incident_id: optional incident id; defaults to 'latest'.
+    """
+    if isinstance(people, str):
+        people = [people]
+    with _http() as client:
+        r = client.post(
+            "/api/warroom/google-meet/invite",
+            json={"incident_id": incident_id or "latest", "people": people},
+        )
+        r.raise_for_status()
+        return r.json()
+
+
+@mcp.tool()
 def cisco_evaluate(scenario_id: str) -> dict[str, Any]:
     """Run Sentinel's Failure Detective on one Cisco AI Factory scenario.
 

@@ -228,7 +228,7 @@ export default function CiscoPanel({ onOpenWarroom }: CiscoPanelProps = {}) {
                     <button
                       onClick={openWarroom}
                       className="px-3 py-2 bg-[#B8422E] hover:bg-[#9e3827] text-white rounded-[4px] text-sm font-semibold transition-colors"
-                      title="Recommended action is destructive and high-confidence"
+                      title="Opens a Google Meet war room and the decision panel"
                     >
                       🎥 Open war room
                     </button>
