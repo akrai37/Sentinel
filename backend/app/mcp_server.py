@@ -110,5 +110,47 @@ def sentinel_status() -> dict[str, Any]:
     }
 
 
+@mcp.tool()
+def cisco_scenarios() -> dict[str, Any]:
+    """List the Cisco AI Factory scenarios Sentinel can evaluate.
+
+    Use this when the engineer asks 'what Cisco scenarios are there?' or
+    'show me failure detective scenarios'. Each scenario has an id like
+    perf-001, gpu-003, fail-002 mapped to one of three tracks.
+    """
+    with _http() as client:
+        r = client.get("/api/cisco/scenarios")
+        r.raise_for_status()
+        items = r.json()
+    return {
+        "count": len(items),
+        "scenarios": [
+            {
+                "scenario_id": s["scenario_id"],
+                "track": s["track_id"],
+                "focus_entity": s["focus_entity"],
+                "prompt": s["prompt"],
+                "critical_alerts": s["critical_alerts"],
+            }
+            for s in items
+        ],
+    }
+
+
+@mcp.tool()
+def cisco_evaluate(scenario_id: str) -> dict[str, Any]:
+    """Run Sentinel's Failure Detective on one Cisco AI Factory scenario.
+
+    Use this when the engineer asks 'evaluate perf-001', 'what should we do
+    about scenario gpu-003?', or 'analyze that failure'. Returns a structured
+    recommendation with action, target, reason, confidence, and evidence
+    grounded in the dataset's alerts, logs, and runbooks.
+    """
+    with _http() as client:
+        r = client.post(f"/api/cisco/evaluate/{scenario_id}")
+        r.raise_for_status()
+        return r.json()
+
+
 if __name__ == "__main__":
     mcp.run()

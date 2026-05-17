@@ -1,0 +1,182 @@
+[
+  {
+    "scenario_id": "perf-001",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "perf-002",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "perf-003",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "perf-004",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "perf-005",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "perf-006",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "gpu-001",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "gpu-002",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "gpu-003",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "gpu-004",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "gpu-005",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "gpu-006",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "fail-001",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "fail-002",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "fail-003",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "fail-004",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "fail-005",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  },
+  {
+    "scenario_id": "fail-006",
+    "recommended_action": "TODO",
+    "target": "TODO",
+    "reason_category": "TODO",
+    "confidence": 0.0,
+    "evidence": [
+      "TODO: cite the rows, metrics, logs, runbook notes, or derived signals used by your project"
+    ]
+  }
+]

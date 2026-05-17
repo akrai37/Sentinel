@@ -1,0 +1,301 @@
+log_id,timestamp,service,severity,node_id,rack_id,job_id,model_name,message
+log-000138,2026-04-01T00:00:00Z,training-scheduler,INFO,gpu-node-12,rack-f,,chat-small-8b,placement decision recorded
+log-000240,2026-04-01T03:47:00Z,gpu-node-health,INFO,gpu-node-12,rack-f,,,queue depth sampled
+log-000164,2026-04-01T04:33:00Z,checkpoint-storage,INFO,gpu-node-06,rack-c,,chat-mid-34b,queue depth sampled
+log-000121,2026-04-01T04:48:00Z,checkpoint-storage,INFO,gpu-node-04,rack-b,,,replica rotated
+log-000263,2026-04-01T05:00:00Z,checkpoint-storage,WARN,gpu-node-11,rack-f,,chat-mid-34b,queue depth sampled
+log-000244,2026-04-01T06:38:00Z,training-scheduler,WARN,gpu-node-05,rack-c,,,checkpoint completed
+log-000298,2026-04-01T12:23:00Z,inference-gateway,INFO,gpu-node-05,rack-c,,,health check passed
+log-000182,2026-04-01T13:34:00Z,inference-gateway,WARN,gpu-node-10,rack-e,,chat-mid-34b,health check passed
+log-000259,2026-04-01T14:08:00Z,inference-gateway,INFO,gpu-node-02,rack-a,,chat-small-8b,queue depth sampled
+log-000219,2026-04-01T15:55:00Z,training-scheduler,WARN,gpu-node-09,rack-e,,chat-mid-34b,replica rotated
+log-000214,2026-04-01T20:25:00Z,inference-gateway,INFO,gpu-node-10,rack-e,,chat-small-8b,checkpoint completed
+log-000241,2026-04-01T21:56:00Z,checkpoint-storage,INFO,gpu-node-07,rack-d,,chat-small-8b,checkpoint completed
+log-000221,2026-04-01T22:08:00Z,inference-gateway,INFO,gpu-node-03,rack-b,,chat-small-8b,health check passed
+log-000079,2026-04-01T23:56:00Z,training-job,ERROR,gpu-node-10,rack-e,job-00030,,job failed with exit_reason=cuda_out_of_memory
+log-000142,2026-04-02T09:25:00Z,inference-gateway,INFO,gpu-node-12,rack-f,,,replica rotated
+log-000265,2026-04-02T11:19:00Z,checkpoint-storage,INFO,gpu-node-05,rack-c,,,placement decision recorded
+log-000261,2026-04-02T12:21:00Z,checkpoint-storage,WARN,gpu-node-09,rack-e,,,health check passed
+log-000212,2026-04-02T12:24:00Z,checkpoint-storage,WARN,gpu-node-02,rack-a,,chat-small-8b,health check passed
+log-000075,2026-04-02T12:31:00Z,training-job,ERROR,gpu-node-03,rack-b,job-00050,,job failed with exit_reason=node_lost
+log-000203,2026-04-02T13:35:00Z,checkpoint-storage,WARN,gpu-node-09,rack-e,,,replica rotated
+log-000153,2026-04-02T19:45:00Z,gpu-node-health,INFO,gpu-node-11,rack-f,,chat-small-8b,checkpoint completed
+log-000172,2026-04-02T21:27:00Z,gpu-node-health,WARN,gpu-node-08,rack-d,,chat-small-8b,replica rotated
+log-000090,2026-04-02T21:50:00Z,training-job,ERROR,gpu-node-07,rack-d,job-00083,,job failed with exit_reason=cuda_out_of_memory
+log-000147,2026-04-02T22:58:00Z,training-scheduler,INFO,gpu-node-04,rack-b,,,replica rotated
+log-000200,2026-04-03T00:10:00Z,inference-gateway,INFO,gpu-node-03,rack-b,,,checkpoint completed
+log-000168,2026-04-03T00:18:00Z,checkpoint-storage,INFO,gpu-node-10,rack-e,,chat-small-8b,placement decision recorded
+log-000256,2026-04-03T02:24:00Z,inference-gateway,INFO,gpu-node-06,rack-c,,chat-small-8b,placement decision recorded
+log-000163,2026-04-03T03:11:00Z,training-scheduler,INFO,gpu-node-07,rack-d,,chat-mid-34b,queue depth sampled
+log-000001,2026-04-03T10:09:00Z,inference-gateway,WARN,gpu-node-03,rack-b,,chat-mid-34b,p95 latency spike and high KV cache pressure
+log-000002,2026-04-03T10:13:00Z,inference-gateway,WARN,gpu-node-03,rack-b,,chat-mid-34b,p95 latency spike and high KV cache pressure
+log-000003,2026-04-03T10:35:00Z,inference-gateway,WARN,gpu-node-03,rack-b,,chat-mid-34b,p95 latency spike and high KV cache pressure
+log-000156,2026-04-03T10:40:00Z,gpu-node-health,INFO,gpu-node-12,rack-f,,,queue depth sampled
+log-000004,2026-04-03T10:48:00Z,inference-gateway,WARN,gpu-node-03,rack-b,,chat-mid-34b,p95 latency spike and high KV cache pressure
+log-000005,2026-04-03T11:09:00Z,inference-gateway,WARN,gpu-node-03,rack-b,,chat-mid-34b,p95 latency spike and high KV cache pressure
+log-000006,2026-04-03T11:22:00Z,inference-gateway,WARN,gpu-node-03,rack-b,,chat-mid-34b,p95 latency spike and high KV cache pressure
+log-000007,2026-04-03T11:40:00Z,inference-gateway,WARN,gpu-node-03,rack-b,,chat-mid-34b,p95 latency spike and high KV cache pressure
+log-000209,2026-04-03T13:38:00Z,checkpoint-storage,INFO,gpu-node-10,rack-e,,chat-mid-34b,replica rotated
+log-000170,2026-04-03T17:02:00Z,inference-gateway,INFO,gpu-node-04,rack-b,,,replica rotated
+log-000253,2026-04-03T17:11:00Z,training-scheduler,INFO,gpu-node-04,rack-b,,chat-mid-34b,placement decision recorded
+log-000152,2026-04-03T17:43:00Z,gpu-node-health,INFO,gpu-node-04,rack-b,,chat-mid-34b,health check passed
+log-000126,2026-04-03T18:57:00Z,gpu-node-health,INFO,gpu-node-05,rack-c,,embed-small,placement decision recorded
+log-000197,2026-04-03T20:07:00Z,gpu-node-health,WARN,gpu-node-03,rack-b,,,placement decision recorded
+log-000087,2026-04-03T21:14:00Z,training-job,ERROR,gpu-node-02,rack-a,job-00123,,job failed with exit_reason=cuda_out_of_memory
+log-000086,2026-04-04T01:52:00Z,training-job,ERROR,gpu-node-01,rack-a,job-00130,,job failed with exit_reason=node_lost
+log-000166,2026-04-04T03:49:00Z,training-scheduler,INFO,gpu-node-01,rack-a,,,queue depth sampled
+log-000248,2026-04-04T04:15:00Z,inference-gateway,INFO,gpu-node-01,rack-a,,embed-small,queue depth sampled
+log-000260,2026-04-04T05:16:00Z,inference-gateway,INFO,gpu-node-12,rack-f,,,health check passed
+log-000148,2026-04-04T08:32:00Z,gpu-node-health,INFO,gpu-node-02,rack-a,,embed-small,checkpoint completed
+log-000188,2026-04-04T13:35:00Z,checkpoint-storage,INFO,gpu-node-04,rack-b,,chat-small-8b,queue depth sampled
+log-000030,2026-04-04T14:05:00Z,training-scheduler,WARN,,,,,8-GPU and 16-GPU jobs waiting behind small jobs
+log-000031,2026-04-04T14:25:00Z,training-scheduler,WARN,,,,,8-GPU and 16-GPU jobs waiting behind small jobs
+log-000032,2026-04-04T14:45:00Z,training-scheduler,WARN,,,,,8-GPU and 16-GPU jobs waiting behind small jobs
+log-000033,2026-04-04T14:51:00Z,training-scheduler,WARN,,,,,8-GPU and 16-GPU jobs waiting behind small jobs
+log-000034,2026-04-04T15:02:00Z,training-scheduler,WARN,,,,,8-GPU and 16-GPU jobs waiting behind small jobs
+log-000035,2026-04-04T15:27:00Z,training-scheduler,WARN,,,,,8-GPU and 16-GPU jobs waiting behind small jobs
+log-000255,2026-04-04T15:30:00Z,inference-gateway,INFO,gpu-node-05,rack-c,,chat-mid-34b,placement decision recorded
+log-000036,2026-04-04T15:40:00Z,training-scheduler,WARN,,,,,8-GPU and 16-GPU jobs waiting behind small jobs
+log-000246,2026-04-04T15:53:00Z,inference-gateway,INFO,gpu-node-05,rack-c,,chat-small-8b,health check passed
+log-000037,2026-04-04T16:03:00Z,training-scheduler,WARN,,,,,8-GPU and 16-GPU jobs waiting behind small jobs
+log-000286,2026-04-04T16:05:00Z,gpu-node-health,WARN,gpu-node-06,rack-c,,,queue depth sampled
+log-000124,2026-04-04T16:35:00Z,inference-gateway,INFO,gpu-node-11,rack-f,,,placement decision recorded
+log-000177,2026-04-04T17:35:00Z,inference-gateway,INFO,gpu-node-02,rack-a,,embed-small,checkpoint completed
+log-000097,2026-04-04T18:52:00Z,training-job,ERROR,gpu-node-05,rack-c,job-00160,,job failed with exit_reason=cuda_out_of_memory
+log-000104,2026-04-04T19:01:00Z,training-job,ERROR,gpu-node-01,rack-a,job-00163,,job failed with exit_reason=user_code_error
+log-000165,2026-04-04T19:03:00Z,checkpoint-storage,WARN,gpu-node-10,rack-e,,chat-small-8b,queue depth sampled
+log-000107,2026-04-04T19:11:00Z,training-job,ERROR,gpu-node-04,rack-b,job-00196,,job failed with exit_reason=cuda_out_of_memory
+log-000143,2026-04-04T19:18:00Z,gpu-node-health,INFO,gpu-node-12,rack-f,,chat-small-8b,queue depth sampled
+log-000230,2026-04-05T00:48:00Z,inference-gateway,INFO,gpu-node-03,rack-b,,chat-small-8b,queue depth sampled
+log-000185,2026-04-05T02:24:00Z,gpu-node-health,INFO,gpu-node-12,rack-f,,chat-mid-34b,queue depth sampled
+log-000289,2026-04-05T02:27:00Z,checkpoint-storage,INFO,gpu-node-08,rack-d,,chat-small-8b,replica rotated
+log-000187,2026-04-05T02:57:00Z,training-scheduler,INFO,gpu-node-07,rack-d,,chat-mid-34b,queue depth sampled
+log-000181,2026-04-05T04:42:00Z,gpu-node-health,INFO,gpu-node-11,rack-f,,chat-small-8b,queue depth sampled
+log-000162,2026-04-05T05:44:00Z,checkpoint-storage,INFO,gpu-node-05,rack-c,,embed-small,health check passed
+log-000270,2026-04-05T06:06:00Z,training-scheduler,WARN,gpu-node-07,rack-d,,chat-mid-34b,checkpoint completed
+log-000208,2026-04-05T08:10:00Z,gpu-node-health,WARN,gpu-node-10,rack-e,,,replica rotated
+log-000299,2026-04-05T11:08:00Z,training-scheduler,INFO,gpu-node-11,rack-f,,chat-mid-34b,health check passed
+log-000285,2026-04-05T11:23:00Z,inference-gateway,INFO,gpu-node-06,rack-c,,embed-small,queue depth sampled
+log-000278,2026-04-05T15:20:00Z,training-scheduler,WARN,gpu-node-11,rack-f,,,health check passed
+log-000239,2026-04-05T16:02:00Z,checkpoint-storage,INFO,gpu-node-05,rack-c,,,health check passed
+log-000277,2026-04-05T17:25:00Z,inference-gateway,WARN,gpu-node-06,rack-c,,chat-mid-34b,placement decision recorded
+log-000267,2026-04-05T17:32:00Z,gpu-node-health,INFO,gpu-node-09,rack-e,,chat-mid-34b,placement decision recorded
+log-000008,2026-04-05T18:03:00Z,inference-gateway,WARN,,rack-e,,embed-small,429s during embedding traffic burst
+log-000189,2026-04-05T18:09:00Z,checkpoint-storage,INFO,gpu-node-04,rack-b,,chat-small-8b,checkpoint completed
+log-000009,2026-04-05T18:25:00Z,inference-gateway,WARN,,rack-e,,embed-small,429s during embedding traffic burst
+log-000010,2026-04-05T18:42:00Z,inference-gateway,WARN,,rack-e,,embed-small,429s during embedding traffic burst
+log-000291,2026-04-05T18:58:00Z,checkpoint-storage,INFO,gpu-node-08,rack-d,,chat-small-8b,queue depth sampled
+log-000011,2026-04-05T19:00:00Z,inference-gateway,WARN,,rack-e,,embed-small,429s during embedding traffic burst
+log-000134,2026-04-05T19:59:00Z,training-scheduler,WARN,gpu-node-03,rack-b,,,checkpoint completed
+log-000269,2026-04-05T20:34:00Z,inference-gateway,WARN,gpu-node-10,rack-e,,chat-mid-34b,health check passed
+log-000296,2026-04-05T22:37:00Z,inference-gateway,INFO,gpu-node-03,rack-b,,,checkpoint completed
+log-000151,2026-04-06T01:56:00Z,training-scheduler,INFO,gpu-node-10,rack-e,,chat-small-8b,health check passed
+log-000054,2026-04-06T02:03:00Z,checkpoint-storage,ERROR,,,,,checkpoint write timed out after 300s; retry scheduled
+log-000089,2026-04-06T02:14:00Z,training-job,ERROR,gpu-node-02,rack-a,job-00265,,job failed with exit_reason=checkpoint_write_timeout
+log-000055,2026-04-06T02:16:00Z,checkpoint-storage,ERROR,,,,,checkpoint write timed out after 300s; retry scheduled
+log-000056,2026-04-06T02:40:00Z,checkpoint-storage,ERROR,,,,,checkpoint write timed out after 300s; retry scheduled
+log-000106,2026-04-06T03:01:00Z,training-job,ERROR,gpu-node-04,rack-b,job-00278,,job failed with exit_reason=checkpoint_write_timeout
+log-000057,2026-04-06T03:05:00Z,checkpoint-storage,ERROR,,,,,checkpoint write timed out after 300s; retry scheduled
+log-000058,2026-04-06T03:15:00Z,checkpoint-storage,ERROR,,,,,checkpoint write timed out after 300s; retry scheduled
+log-000085,2026-04-06T03:30:00Z,training-job,ERROR,gpu-node-05,rack-c,job-00260,,job failed with exit_reason=checkpoint_write_timeout
+log-000110,2026-04-06T03:31:00Z,training-job,ERROR,gpu-node-06,rack-c,job-00267,,job failed with exit_reason=checkpoint_write_timeout
+log-000059,2026-04-06T03:36:00Z,checkpoint-storage,ERROR,,,,,checkpoint write timed out after 300s; retry scheduled
+log-000060,2026-04-06T03:41:00Z,checkpoint-storage,ERROR,,,,,checkpoint write timed out after 300s; retry scheduled
+log-000061,2026-04-06T03:56:00Z,checkpoint-storage,ERROR,,,,,checkpoint write timed out after 300s; retry scheduled
+log-000062,2026-04-06T04:10:00Z,checkpoint-storage,ERROR,,,,,checkpoint write timed out after 300s; retry scheduled
+log-000275,2026-04-06T07:19:00Z,gpu-node-health,INFO,gpu-node-06,rack-c,,chat-mid-34b,checkpoint completed
+log-000082,2026-04-06T08:36:00Z,training-job,ERROR,gpu-node-11,rack-f,job-00275,,job failed with exit_reason=cuda_out_of_memory
+log-000194,2026-04-06T08:51:00Z,checkpoint-storage,INFO,gpu-node-09,rack-e,,chat-mid-34b,checkpoint completed
+log-000176,2026-04-06T10:05:00Z,gpu-node-health,WARN,gpu-node-08,rack-d,,embed-small,placement decision recorded
+log-000137,2026-04-06T11:37:00Z,inference-gateway,INFO,gpu-node-01,rack-a,,embed-small,health check passed
+log-000161,2026-04-06T13:02:00Z,checkpoint-storage,INFO,gpu-node-07,rack-d,,embed-small,replica rotated
+log-000232,2026-04-06T13:46:00Z,training-scheduler,INFO,gpu-node-03,rack-b,,chat-mid-34b,placement decision recorded
+log-000250,2026-04-06T14:13:00Z,inference-gateway,INFO,gpu-node-09,rack-e,,chat-mid-34b,checkpoint completed
+log-000292,2026-04-06T15:19:00Z,inference-gateway,INFO,gpu-node-06,rack-c,,,replica rotated
+log-000195,2026-04-06T16:48:00Z,training-scheduler,INFO,gpu-node-11,rack-f,,,placement decision recorded
+log-000139,2026-04-06T19:14:00Z,gpu-node-health,WARN,gpu-node-11,rack-f,,chat-small-8b,placement decision recorded
+log-000123,2026-04-07T00:47:00Z,training-scheduler,INFO,gpu-node-02,rack-a,,embed-small,placement decision recorded
+log-000251,2026-04-07T01:39:00Z,training-scheduler,INFO,gpu-node-03,rack-b,,chat-mid-34b,placement decision recorded
+log-000094,2026-04-07T01:49:00Z,training-job,ERROR,gpu-node-05,rack-c,job-00332,,job failed with exit_reason=user_code_error
+log-000281,2026-04-07T05:44:00Z,gpu-node-health,INFO,gpu-node-03,rack-b,,,placement decision recorded
+log-000213,2026-04-07T06:06:00Z,checkpoint-storage,INFO,gpu-node-12,rack-f,,chat-mid-34b,checkpoint completed
+log-000171,2026-04-07T06:26:00Z,training-scheduler,INFO,gpu-node-07,rack-d,,,health check passed
+log-000099,2026-04-07T06:41:00Z,training-job,ERROR,gpu-node-08,rack-d,job-00342,,job failed with exit_reason=node_lost
+log-000215,2026-04-07T08:43:00Z,inference-gateway,WARN,gpu-node-10,rack-e,,,replica rotated
+log-000045,2026-04-07T10:08:00Z,training-scheduler,WARN,,,,,32-GPU jobs waiting while capacity is scattered
+log-000046,2026-04-07T10:18:00Z,training-scheduler,WARN,,,,,32-GPU jobs waiting while capacity is scattered
+log-000047,2026-04-07T10:25:00Z,training-scheduler,WARN,,,,,32-GPU jobs waiting while capacity is scattered
+log-000048,2026-04-07T10:39:00Z,training-scheduler,WARN,,,,,32-GPU jobs waiting while capacity is scattered
+log-000049,2026-04-07T11:00:00Z,training-scheduler,WARN,,,,,32-GPU jobs waiting while capacity is scattered
+log-000290,2026-04-07T11:00:00Z,training-scheduler,WARN,gpu-node-06,rack-c,,chat-mid-34b,checkpoint completed
+log-000050,2026-04-07T11:18:00Z,training-scheduler,WARN,,,,,32-GPU jobs waiting while capacity is scattered
+log-000051,2026-04-07T11:38:00Z,training-scheduler,WARN,,,,,32-GPU jobs waiting while capacity is scattered
+log-000052,2026-04-07T11:48:00Z,training-scheduler,WARN,,,,,32-GPU jobs waiting while capacity is scattered
+log-000053,2026-04-07T12:01:00Z,training-scheduler,WARN,,,,,32-GPU jobs waiting while capacity is scattered
+log-000130,2026-04-07T18:19:00Z,training-scheduler,WARN,gpu-node-05,rack-c,,,checkpoint completed
+log-000169,2026-04-07T18:28:00Z,training-scheduler,WARN,gpu-node-04,rack-b,,chat-mid-34b,health check passed
+log-000140,2026-04-07T19:22:00Z,checkpoint-storage,INFO,gpu-node-03,rack-b,,embed-small,placement decision recorded
+log-000093,2026-04-07T21:36:00Z,training-job,ERROR,gpu-node-06,rack-c,job-00347,,job failed with exit_reason=cuda_out_of_memory
+log-000077,2026-04-07T23:16:00Z,training-job,ERROR,gpu-node-12,rack-f,job-00358,,job failed with exit_reason=user_code_error
+log-000271,2026-04-08T02:00:00Z,training-scheduler,INFO,gpu-node-11,rack-f,,chat-mid-34b,health check passed
+log-000103,2026-04-08T03:19:00Z,training-job,ERROR,gpu-node-08,rack-d,job-00396,,job failed with exit_reason=cuda_out_of_memory
+log-000293,2026-04-08T03:53:00Z,checkpoint-storage,INFO,gpu-node-09,rack-e,,embed-small,health check passed
+log-000218,2026-04-08T03:54:00Z,inference-gateway,WARN,gpu-node-04,rack-b,,,queue depth sampled
+log-000222,2026-04-08T06:48:00Z,gpu-node-health,INFO,gpu-node-04,rack-b,,embed-small,placement decision recorded
+log-000237,2026-04-08T07:19:00Z,checkpoint-storage,INFO,gpu-node-09,rack-e,,chat-mid-34b,replica rotated
+log-000254,2026-04-08T08:23:00Z,training-scheduler,INFO,gpu-node-11,rack-f,,embed-small,placement decision recorded
+log-000225,2026-04-08T08:42:00Z,inference-gateway,INFO,gpu-node-08,rack-d,,embed-small,placement decision recorded
+log-000105,2026-04-08T09:03:00Z,training-job,ERROR,gpu-node-12,rack-f,job-00409,,job failed with exit_reason=node_lost
+log-000100,2026-04-08T09:18:00Z,training-job,ERROR,gpu-node-10,rack-e,job-00397,,job failed with exit_reason=user_code_error
+log-000012,2026-04-08T09:36:00Z,ai-fabric,WARN,,rack-c,,,RDMA latency and retransmits elevated in rack-c
+log-000013,2026-04-08T09:52:00Z,ai-fabric,WARN,,rack-c,,,RDMA latency and retransmits elevated in rack-c
+log-000199,2026-04-08T09:54:00Z,checkpoint-storage,INFO,gpu-node-01,rack-a,,,health check passed
+log-000014,2026-04-08T10:02:00Z,ai-fabric,WARN,,rack-c,,,RDMA latency and retransmits elevated in rack-c
+log-000284,2026-04-08T10:10:00Z,inference-gateway,INFO,gpu-node-01,rack-a,,embed-small,health check passed
+log-000015,2026-04-08T10:11:00Z,ai-fabric,WARN,,rack-c,,,RDMA latency and retransmits elevated in rack-c
+log-000016,2026-04-08T10:31:00Z,ai-fabric,WARN,,rack-c,,,RDMA latency and retransmits elevated in rack-c
+log-000017,2026-04-08T10:50:00Z,ai-fabric,WARN,,rack-c,,,RDMA latency and retransmits elevated in rack-c
+log-000216,2026-04-08T12:38:00Z,gpu-node-health,INFO,gpu-node-09,rack-e,,,placement decision recorded
+log-000127,2026-04-08T12:52:00Z,training-scheduler,INFO,gpu-node-08,rack-d,,chat-mid-34b,placement decision recorded
+log-000288,2026-04-08T15:31:00Z,gpu-node-health,INFO,gpu-node-06,rack-c,,chat-mid-34b,health check passed
+log-000266,2026-04-08T17:05:00Z,checkpoint-storage,WARN,gpu-node-04,rack-b,,chat-small-8b,placement decision recorded
+log-000173,2026-04-08T18:10:00Z,gpu-node-health,WARN,gpu-node-03,rack-b,,chat-small-8b,queue depth sampled
+log-000180,2026-04-08T18:25:00Z,checkpoint-storage,INFO,gpu-node-06,rack-c,,chat-small-8b,checkpoint completed
+log-000145,2026-04-08T20:15:00Z,inference-gateway,INFO,gpu-node-01,rack-a,,chat-small-8b,placement decision recorded
+log-000155,2026-04-08T22:23:00Z,inference-gateway,INFO,gpu-node-05,rack-c,,,queue depth sampled
+log-000135,2026-04-08T22:40:00Z,inference-gateway,INFO,gpu-node-04,rack-b,,chat-mid-34b,queue depth sampled
+log-000198,2026-04-09T00:17:00Z,inference-gateway,WARN,gpu-node-01,rack-a,,embed-small,placement decision recorded
+log-000146,2026-04-09T01:22:00Z,training-scheduler,INFO,gpu-node-10,rack-e,,chat-mid-34b,checkpoint completed
+log-000300,2026-04-09T03:17:00Z,training-scheduler,INFO,gpu-node-08,rack-d,,embed-small,health check passed
+log-000160,2026-04-09T04:24:00Z,gpu-node-health,WARN,gpu-node-07,rack-d,,chat-small-8b,checkpoint completed
+log-000111,2026-04-09T06:36:00Z,training-job,ERROR,gpu-node-11,rack-f,job-00453,,job failed with exit_reason=node_lost
+log-000158,2026-04-09T08:27:00Z,checkpoint-storage,INFO,gpu-node-12,rack-f,,,health check passed
+log-000276,2026-04-09T13:14:00Z,inference-gateway,INFO,gpu-node-10,rack-e,,embed-small,checkpoint completed
+log-000038,2026-04-09T15:05:00Z,training-scheduler,WARN,,,,,High-priority evaluation jobs waiting behind lower-priority work
+log-000039,2026-04-09T15:15:00Z,training-scheduler,WARN,,,,,High-priority evaluation jobs waiting behind lower-priority work
+log-000040,2026-04-09T15:25:00Z,training-scheduler,WARN,,,,,High-priority evaluation jobs waiting behind lower-priority work
+log-000247,2026-04-09T15:30:00Z,checkpoint-storage,INFO,gpu-node-09,rack-e,,chat-mid-34b,placement decision recorded
+log-000041,2026-04-09T15:40:00Z,training-scheduler,WARN,,,,,High-priority evaluation jobs waiting behind lower-priority work
+log-000042,2026-04-09T15:58:00Z,training-scheduler,WARN,,,,,High-priority evaluation jobs waiting behind lower-priority work
+log-000043,2026-04-09T16:20:00Z,training-scheduler,WARN,,,,,High-priority evaluation jobs waiting behind lower-priority work
+log-000044,2026-04-09T16:32:00Z,training-scheduler,WARN,,,,,High-priority evaluation jobs waiting behind lower-priority work
+log-000129,2026-04-09T18:10:00Z,gpu-node-health,WARN,gpu-node-03,rack-b,,,replica rotated
+log-000159,2026-04-09T19:42:00Z,gpu-node-health,WARN,gpu-node-02,rack-a,,,placement decision recorded
+log-000207,2026-04-09T20:28:00Z,training-scheduler,INFO,gpu-node-11,rack-f,,chat-small-8b,checkpoint completed
+log-000150,2026-04-09T20:59:00Z,inference-gateway,WARN,gpu-node-10,rack-e,,,health check passed
+log-000088,2026-04-09T21:22:00Z,training-job,ERROR,gpu-node-10,rack-e,job-00465,,job failed with exit_reason=cuda_out_of_memory
+log-000229,2026-04-09T23:39:00Z,gpu-node-health,WARN,gpu-node-01,rack-a,,chat-mid-34b,placement decision recorded
+log-000249,2026-04-10T00:33:00Z,gpu-node-health,INFO,gpu-node-08,rack-d,,chat-small-8b,checkpoint completed
+log-000227,2026-04-10T12:31:00Z,gpu-node-health,INFO,gpu-node-03,rack-b,,chat-small-8b,placement decision recorded
+log-000018,2026-04-10T13:16:00Z,inference-gateway,ERROR,,rack-e,,code-assist-15b,config_version=v2026.04.09-rc tokenizer checksum mismatch for code-assist-15b
+log-000245,2026-04-10T13:22:00Z,gpu-node-health,INFO,gpu-node-03,rack-b,,,queue depth sampled
+log-000019,2026-04-10T13:38:00Z,inference-gateway,ERROR,,rack-e,,code-assist-15b,config_version=v2026.04.09-rc tokenizer checksum mismatch for code-assist-15b
+log-000020,2026-04-10T13:47:00Z,inference-gateway,ERROR,,rack-e,,code-assist-15b,config_version=v2026.04.09-rc tokenizer checksum mismatch for code-assist-15b
+log-000078,2026-04-10T13:50:00Z,training-job,ERROR,gpu-node-05,rack-c,job-00532,,job failed with exit_reason=cuda_out_of_memory
+log-000021,2026-04-10T14:02:00Z,inference-gateway,ERROR,,rack-e,,code-assist-15b,config_version=v2026.04.09-rc tokenizer checksum mismatch for code-assist-15b
+log-000022,2026-04-10T14:15:00Z,inference-gateway,ERROR,,rack-e,,code-assist-15b,config_version=v2026.04.09-rc tokenizer checksum mismatch for code-assist-15b
+log-000023,2026-04-10T14:30:00Z,inference-gateway,ERROR,,rack-e,,code-assist-15b,config_version=v2026.04.09-rc tokenizer checksum mismatch for code-assist-15b
+log-000272,2026-04-10T17:01:00Z,training-scheduler,INFO,gpu-node-03,rack-b,,chat-mid-34b,replica rotated
+log-000280,2026-04-10T18:14:00Z,gpu-node-health,WARN,gpu-node-07,rack-d,,embed-small,replica rotated
+log-000196,2026-04-10T22:30:00Z,checkpoint-storage,WARN,gpu-node-09,rack-e,,chat-small-8b,placement decision recorded
+log-000234,2026-04-11T01:39:00Z,checkpoint-storage,INFO,gpu-node-11,rack-f,,embed-small,queue depth sampled
+log-000231,2026-04-11T01:59:00Z,checkpoint-storage,INFO,gpu-node-04,rack-b,,,health check passed
+log-000297,2026-04-11T04:19:00Z,training-scheduler,INFO,gpu-node-09,rack-e,,chat-small-8b,health check passed
+log-000223,2026-04-11T08:04:00Z,gpu-node-health,INFO,gpu-node-04,rack-b,,,health check passed
+log-000228,2026-04-11T08:09:00Z,training-scheduler,WARN,gpu-node-11,rack-f,,,checkpoint completed
+log-000279,2026-04-11T11:35:00Z,checkpoint-storage,WARN,gpu-node-02,rack-a,,,replica rotated
+log-000264,2026-04-11T12:07:00Z,inference-gateway,INFO,gpu-node-11,rack-f,,chat-mid-34b,placement decision recorded
+log-000295,2026-04-11T12:08:00Z,training-scheduler,WARN,gpu-node-06,rack-c,,,health check passed
+log-000283,2026-04-11T14:47:00Z,training-scheduler,WARN,gpu-node-02,rack-a,,embed-small,replica rotated
+log-000205,2026-04-11T19:09:00Z,training-scheduler,INFO,gpu-node-06,rack-c,,chat-small-8b,placement decision recorded
+log-000063,2026-04-11T20:07:00Z,gpu-node-health,ERROR,gpu-node-09,rack-e,,,gpu xid 79/ecc double-bit error observed; mark node unhealthy
+log-000084,2026-04-11T20:13:00Z,training-job,ERROR,gpu-node-04,rack-b,job-00593,,job failed with exit_reason=gpu_xid_ecc_error
+log-000064,2026-04-11T20:17:00Z,gpu-node-health,ERROR,gpu-node-09,rack-e,,,gpu xid 79/ecc double-bit error observed; mark node unhealthy
+log-000065,2026-04-11T20:20:00Z,gpu-node-health,ERROR,gpu-node-09,rack-e,,,gpu xid 79/ecc double-bit error observed; mark node unhealthy
+log-000125,2026-04-11T20:22:00Z,checkpoint-storage,INFO,gpu-node-02,rack-a,,chat-small-8b,replica rotated
+log-000066,2026-04-11T20:45:00Z,gpu-node-health,ERROR,gpu-node-09,rack-e,,,gpu xid 79/ecc double-bit error observed; mark node unhealthy
+log-000067,2026-04-11T20:58:00Z,gpu-node-health,ERROR,gpu-node-09,rack-e,,,gpu xid 79/ecc double-bit error observed; mark node unhealthy
+log-000068,2026-04-11T21:15:00Z,gpu-node-health,ERROR,gpu-node-09,rack-e,,,gpu xid 79/ecc double-bit error observed; mark node unhealthy
+log-000102,2026-04-11T21:15:00Z,training-job,ERROR,gpu-node-11,rack-f,job-00588,,job failed with exit_reason=gpu_xid_ecc_error
+log-000287,2026-04-11T21:16:00Z,inference-gateway,INFO,gpu-node-10,rack-e,,chat-small-8b,placement decision recorded
+log-000069,2026-04-11T21:32:00Z,gpu-node-health,ERROR,gpu-node-09,rack-e,,,gpu xid 79/ecc double-bit error observed; mark node unhealthy
+log-000252,2026-04-11T23:46:00Z,training-scheduler,INFO,gpu-node-01,rack-a,,,checkpoint completed
+log-000235,2026-04-12T00:16:00Z,inference-gateway,INFO,gpu-node-11,rack-f,,chat-mid-34b,checkpoint completed
+log-000190,2026-04-12T00:42:00Z,checkpoint-storage,INFO,gpu-node-03,rack-b,,chat-small-8b,health check passed
+log-000184,2026-04-12T00:50:00Z,gpu-node-health,INFO,gpu-node-03,rack-b,,chat-mid-34b,placement decision recorded
+log-000238,2026-04-12T01:02:00Z,inference-gateway,INFO,gpu-node-05,rack-c,,chat-mid-34b,checkpoint completed
+log-000167,2026-04-12T01:39:00Z,inference-gateway,INFO,gpu-node-02,rack-a,,chat-mid-34b,placement decision recorded
+log-000236,2026-04-12T05:07:00Z,checkpoint-storage,INFO,gpu-node-12,rack-f,,chat-mid-34b,placement decision recorded
+log-000273,2026-04-12T05:40:00Z,inference-gateway,INFO,gpu-node-12,rack-f,,chat-mid-34b,checkpoint completed
+log-000191,2026-04-12T09:12:00Z,gpu-node-health,INFO,gpu-node-05,rack-c,,chat-small-8b,placement decision recorded
+log-000024,2026-04-12T09:20:00Z,gpu-node-health,ERROR,gpu-node-02,rack-a,,,Temperature and power alerts on a serving node
+log-000025,2026-04-12T09:32:00Z,gpu-node-health,ERROR,gpu-node-02,rack-a,,,Temperature and power alerts on a serving node
+log-000026,2026-04-12T09:49:00Z,gpu-node-health,ERROR,gpu-node-02,rack-a,,,Temperature and power alerts on a serving node
+log-000027,2026-04-12T09:55:00Z,gpu-node-health,ERROR,gpu-node-02,rack-a,,,Temperature and power alerts on a serving node
+log-000028,2026-04-12T10:19:00Z,gpu-node-health,ERROR,gpu-node-02,rack-a,,,Temperature and power alerts on a serving node
+log-000029,2026-04-12T10:28:00Z,gpu-node-health,ERROR,gpu-node-02,rack-a,,,Temperature and power alerts on a serving node
+log-000080,2026-04-12T10:53:00Z,training-job,ERROR,gpu-node-12,rack-f,job-00633,,job failed with exit_reason=node_lost
+log-000136,2026-04-12T12:51:00Z,gpu-node-health,INFO,gpu-node-04,rack-b,,,health check passed
+log-000262,2026-04-12T14:53:00Z,inference-gateway,WARN,gpu-node-11,rack-f,,embed-small,placement decision recorded
+log-000274,2026-04-12T15:00:00Z,checkpoint-storage,INFO,gpu-node-06,rack-c,,chat-small-8b,queue depth sampled
+log-000112,2026-04-12T15:22:00Z,training-job,ERROR,gpu-node-05,rack-c,job-00639,,job failed with exit_reason=cuda_out_of_memory
+log-000091,2026-04-12T16:41:00Z,training-job,ERROR,gpu-node-11,rack-f,job-00613,,job failed with exit_reason=user_code_error
+log-000179,2026-04-12T21:49:00Z,checkpoint-storage,WARN,gpu-node-02,rack-a,,,replica rotated
+log-000149,2026-04-12T21:51:00Z,gpu-node-health,INFO,gpu-node-04,rack-b,,embed-small,replica rotated
+log-000081,2026-04-12T22:01:00Z,training-job,ERROR,gpu-node-02,rack-a,job-00647,,job failed with exit_reason=user_code_error
+log-000201,2026-04-12T22:55:00Z,inference-gateway,INFO,gpu-node-06,rack-c,,chat-mid-34b,placement decision recorded
+log-000192,2026-04-13T00:47:00Z,inference-gateway,INFO,gpu-node-05,rack-c,,,placement decision recorded
+log-000154,2026-04-13T02:08:00Z,gpu-node-health,INFO,gpu-node-11,rack-f,,,replica rotated
+log-000294,2026-04-13T03:41:00Z,training-scheduler,WARN,gpu-node-11,rack-f,,chat-mid-34b,replica rotated
+log-000186,2026-04-13T04:43:00Z,gpu-node-health,INFO,gpu-node-06,rack-c,,embed-small,queue depth sampled
+log-000157,2026-04-13T05:48:00Z,gpu-node-health,INFO,gpu-node-06,rack-c,,chat-mid-34b,checkpoint completed
+log-000083,2026-04-13T06:17:00Z,training-job,ERROR,gpu-node-06,rack-c,job-00643,,job failed with exit_reason=user_code_error
+log-000095,2026-04-13T06:53:00Z,training-job,ERROR,gpu-node-07,rack-d,job-00668,,job failed with exit_reason=node_lost
+log-000210,2026-04-13T07:12:00Z,inference-gateway,INFO,gpu-node-12,rack-f,,,replica rotated
+log-000268,2026-04-13T08:49:00Z,training-scheduler,INFO,gpu-node-02,rack-a,,chat-small-8b,queue depth sampled
+log-000217,2026-04-13T09:47:00Z,inference-gateway,INFO,gpu-node-11,rack-f,,embed-small,replica rotated
+log-000133,2026-04-13T11:13:00Z,training-scheduler,INFO,gpu-node-12,rack-f,,,queue depth sampled
+log-000096,2026-04-13T11:14:00Z,training-job,ERROR,gpu-node-12,rack-f,job-00656,,job failed with exit_reason=cuda_out_of_memory
+log-000101,2026-04-13T12:24:00Z,training-job,ERROR,gpu-node-04,rack-b,job-00685,,job failed with exit_reason=node_lost
+log-000224,2026-04-13T12:42:00Z,inference-gateway,WARN,gpu-node-08,rack-d,,chat-mid-34b,placement decision recorded
+log-000070,2026-04-13T13:10:00Z,training-job,ERROR,,,,,python traceback in user training step; no matching node or storage anomaly
+log-000076,2026-04-13T13:24:00Z,training-job,ERROR,gpu-node-10,rack-e,job-00678,,job failed with exit_reason=user_code_error
+log-000071,2026-04-13T13:30:00Z,training-job,ERROR,,,,,python traceback in user training step; no matching node or storage anomaly
+log-000072,2026-04-13T13:44:00Z,training-job,ERROR,,,,,python traceback in user training step; no matching node or storage anomaly
+log-000108,2026-04-13T13:49:00Z,training-job,ERROR,gpu-node-01,rack-a,job-00689,,job failed with exit_reason=user_code_error
+log-000092,2026-04-13T13:54:00Z,training-job,ERROR,gpu-node-07,rack-d,job-00683,,job failed with exit_reason=user_code_error
+log-000073,2026-04-13T13:55:00Z,training-job,ERROR,,,,,python traceback in user training step; no matching node or storage anomaly
+log-000144,2026-04-13T13:58:00Z,training-scheduler,WARN,gpu-node-11,rack-f,,chat-mid-34b,placement decision recorded
+log-000220,2026-04-13T14:04:00Z,inference-gateway,INFO,gpu-node-07,rack-d,,chat-small-8b,checkpoint completed
+log-000098,2026-04-13T15:03:00Z,training-job,ERROR,gpu-node-04,rack-b,job-00675,,job failed with exit_reason=node_lost
+log-000119,2026-04-13T15:47:00Z,training-job,ERROR,gpu-node-10,rack-e,job-00698,,job failed with exit_reason=user_code_error
+log-000115,2026-04-13T17:21:00Z,training-job,ERROR,gpu-node-06,rack-c,job-00702,,job failed with exit_reason=user_code_error
+log-000257,2026-04-13T17:24:00Z,training-scheduler,WARN,gpu-node-01,rack-a,,,queue depth sampled
+log-000282,2026-04-13T17:26:00Z,gpu-node-health,INFO,gpu-node-03,rack-b,,chat-small-8b,checkpoint completed
+log-000120,2026-04-13T17:30:00Z,training-job,ERROR,gpu-node-06,rack-c,job-00697,,job failed with exit_reason=user_code_error
+log-000114,2026-04-13T18:40:00Z,training-job,ERROR,gpu-node-12,rack-f,job-00706,,job failed with exit_reason=user_code_error
+log-000113,2026-04-13T20:27:00Z,training-job,ERROR,gpu-node-08,rack-d,job-00704,,job failed with exit_reason=user_code_error
+log-000116,2026-04-13T20:28:00Z,training-job,ERROR,gpu-node-07,rack-d,job-00705,,job failed with exit_reason=user_code_error
+log-000242,2026-04-13T20:50:00Z,checkpoint-storage,INFO,gpu-node-07,rack-d,,chat-small-8b,placement decision recorded
+log-000193,2026-04-13T20:52:00Z,gpu-node-health,INFO,gpu-node-02,rack-a,,chat-small-8b,queue depth sampled
+log-000117,2026-04-13T21:57:00Z,training-job,ERROR,gpu-node-04,rack-b,job-00696,,job failed with exit_reason=user_code_error
+log-000118,2026-04-13T22:06:00Z,training-job,ERROR,gpu-node-03,rack-b,job-00699,,job failed with exit_reason=user_code_error
+log-000204,2026-04-13T22:59:00Z,training-scheduler,WARN,gpu-node-12,rack-f,,chat-small-8b,checkpoint completed
+log-000243,2026-04-13T23:18:00Z,training-scheduler,WARN,gpu-node-09,rack-e,,chat-small-8b,placement decision recorded
+log-000122,2026-04-13T23:45:00Z,inference-gateway,INFO,gpu-node-05,rack-c,,embed-small,checkpoint completed
+log-000233,2026-04-14T00:06:00Z,checkpoint-storage,WARN,gpu-node-12,rack-f,,,checkpoint completed
+log-000202,2026-04-14T00:43:00Z,training-scheduler,INFO,gpu-node-10,rack-e,,embed-small,replica rotated
+log-000183,2026-04-14T01:21:00Z,gpu-node-health,INFO,gpu-node-11,rack-f,,chat-small-8b,replica rotated
+log-000175,2026-04-14T02:20:00Z,gpu-node-health,WARN,gpu-node-01,rack-a,,,placement decision recorded
+log-000211,2026-04-14T04:18:00Z,gpu-node-health,WARN,gpu-node-06,rack-c,,embed-small,checkpoint completed
+log-000132,2026-04-14T05:19:00Z,gpu-node-health,INFO,gpu-node-08,rack-d,,chat-small-8b,queue depth sampled
+log-000174,2026-04-14T06:06:00Z,gpu-node-health,WARN,gpu-node-02,rack-a,,chat-mid-34b,checkpoint completed
+log-000258,2026-04-14T07:10:00Z,checkpoint-storage,INFO,gpu-node-10,rack-e,,chat-mid-34b,replica rotated
+log-000074,2026-04-14T08:20:00Z,training-job,ERROR,gpu-node-02,rack-a,job-00727,,job failed with exit_reason=user_code_error
+log-000141,2026-04-14T14:01:00Z,inference-gateway,INFO,gpu-node-09,rack-e,,chat-mid-34b,health check passed
+log-000128,2026-04-14T15:35:00Z,gpu-node-health,INFO,gpu-node-04,rack-b,,,replica rotated
+log-000131,2026-04-14T16:48:00Z,training-scheduler,WARN,gpu-node-10,rack-e,,chat-small-8b,health check passed
+log-000178,2026-04-14T21:32:00Z,inference-gateway,WARN,gpu-node-12,rack-f,,,placement decision recorded
+log-000226,2026-04-14T21:34:00Z,training-scheduler,INFO,gpu-node-12,rack-f,,chat-mid-34b,placement decision recorded
+log-000206,2026-04-14T21:40:00Z,checkpoint-storage,WARN,gpu-node-03,rack-b,,chat-mid-34b,health check passed
+log-000109,2026-04-14T22:41:00Z,training-job,ERROR,gpu-node-08,rack-d,job-00769,,job failed with exit_reason=node_lost

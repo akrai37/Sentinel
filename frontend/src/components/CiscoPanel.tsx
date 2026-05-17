@@ -1,0 +1,181 @@
+"use client";
+import { useEffect, useMemo, useState } from "react";
+import {
+  evaluateCiscoScenario,
+  listCiscoScenarios,
+  type CiscoRecommendation,
+  type CiscoScenario,
+} from "@/lib/api";
+
+const TRACK_LABEL: Record<string, string> = {
+  performance_advisor: "Performance Advisor",
+  gpu_placement: "GPU Placement",
+  failure_detective: "Failure Detective",
+};
+
+const TRACK_COLOR: Record<string, string> = {
+  performance_advisor: "border-[#D49A1B]/40 bg-[#FBF1D6]/40",
+  gpu_placement: "border-[#4F8C66]/40 bg-[#E6EFE9]/40",
+  failure_detective: "border-[#B8422E]/40 bg-[#FCE9E2]/40",
+};
+
+export default function CiscoPanel() {
+  const [scenarios, setScenarios] = useState<CiscoScenario[]>([]);
+  const [selectedId, setSelectedId] = useState<string>("");
+  const [rec, setRec] = useState<CiscoRecommendation | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    listCiscoScenarios()
+      .then((s) => {
+        setScenarios(s);
+        if (s.length && !selectedId) setSelectedId(s[0].scenario_id);
+      })
+      .catch((e) => setError(e?.message ?? String(e)));
+  }, []);
+
+  const selected = useMemo(
+    () => scenarios.find((s) => s.scenario_id === selectedId),
+    [scenarios, selectedId]
+  );
+
+  async function evaluate() {
+    if (!selectedId) return;
+    setLoading(true);
+    setRec(null);
+    try {
+      const r = await evaluateCiscoScenario(selectedId);
+      setRec(r);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (error) {
+    return (
+      <div className="border border-[#B8422E]/40 bg-white rounded-[8px] p-4 text-sm text-[#B8422E]">
+        Cisco data unavailable: {error}
+      </div>
+    );
+  }
+
+  return (
+    <section className="bg-white border border-[#6C7278]/20 rounded-[8px] overflow-hidden">
+      <header className="px-5 py-4 border-b border-[#6C7278]/20 flex items-center justify-between">
+        <div>
+          <div className="label-caps text-[#6C7278]">Cisco AI Factory · Failure Detective</div>
+          <div className="text-sm text-[#6C7278]/80 mt-1">
+            Pick a scenario from Cisco's dataset. Sentinel inspects alerts, logs,
+            and runbooks then recommends a structured action.
+          </div>
+        </div>
+        <div className="label-caps text-[#6C7278]">{scenarios.length} scenarios</div>
+      </header>
+
+      <div className="p-5 grid grid-cols-1 md:grid-cols-[280px_1fr] gap-5">
+        <div>
+          <label className="label-caps text-[#6C7278] block mb-2">Scenario</label>
+          <select
+            value={selectedId}
+            onChange={(e) => {
+              setSelectedId(e.target.value);
+              setRec(null);
+            }}
+            className="w-full px-3 py-2 bg-white border border-[#6C7278]/30 rounded-[4px] text-sm font-mono"
+          >
+            {scenarios.map((s) => (
+              <option key={s.scenario_id} value={s.scenario_id}>
+                {s.scenario_id} · {TRACK_LABEL[s.track_id] ?? s.track_id}
+              </option>
+            ))}
+          </select>
+
+          {selected && (
+            <div
+              className={`mt-3 p-3 border rounded-[4px] text-xs ${TRACK_COLOR[selected.track_id]}`}
+            >
+              <div className="label-caps text-[#6C7278]/80 mb-1">
+                {TRACK_LABEL[selected.track_id]}
+              </div>
+              <div className="text-[#1A1C1E]">
+                <span className="font-semibold">{selected.focus_entity}</span>
+              </div>
+              <div className="text-[#6C7278] mt-1 leading-snug">{selected.prompt}</div>
+              <div className="text-[#6C7278]/70 mt-2 text-[11px]">
+                {selected.critical_alerts} critical alerts ·{" "}
+                {selected.top_alert_types || "no alert pattern"}
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={evaluate}
+            disabled={loading || !selectedId}
+            className="mt-3 w-full px-4 py-2 bg-[#1A1C1E] hover:bg-[#2A2C2E] text-white rounded-[4px] text-sm font-semibold disabled:opacity-50 transition-colors"
+          >
+            {loading ? "Evaluating…" : "Evaluate with Sentinel"}
+          </button>
+        </div>
+
+        <div>
+          <label className="label-caps text-[#6C7278] block mb-2">Recommendation</label>
+          {!rec && !loading && (
+            <div className="border border-dashed border-[#6C7278]/30 rounded-[4px] p-6 text-sm text-[#6C7278] text-center">
+              Click "Evaluate with Sentinel" to generate a structured recommendation.
+            </div>
+          )}
+          {loading && (
+            <div className="border border-[#6C7278]/30 rounded-[4px] p-6 text-sm text-[#6C7278] text-center">
+              Inspecting signals + runbook…
+            </div>
+          )}
+          {rec && !rec.error && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 border border-[#6C7278]/20 rounded-[4px]">
+                  <div className="label-caps text-[#6C7278]/70 mb-1">Action</div>
+                  <div className="font-mono text-sm font-semibold">{rec.recommended_action}</div>
+                </div>
+                <div className="p-3 border border-[#6C7278]/20 rounded-[4px]">
+                  <div className="label-caps text-[#6C7278]/70 mb-1">Reason</div>
+                  <div className="font-mono text-sm">{rec.reason_category}</div>
+                </div>
+                <div className="p-3 border border-[#6C7278]/20 rounded-[4px]">
+                  <div className="label-caps text-[#6C7278]/70 mb-1">Confidence</div>
+                  <div className="font-mono text-sm tabular-nums">{rec.confidence.toFixed(2)}</div>
+                </div>
+              </div>
+
+              <div className="p-3 border border-[#6C7278]/20 rounded-[4px]">
+                <div className="label-caps text-[#6C7278]/70 mb-1">Target</div>
+                <div className="font-mono text-sm">{rec.target}</div>
+              </div>
+
+              <div className="p-3 border border-[#6C7278]/20 rounded-[4px]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="label-caps text-[#6C7278]/70">Evidence</span>
+                  <span className="label-caps text-[#6C7278]/50">
+                    {rec.used_llm ? "heuristic + LLM" : "heuristic only"}
+                  </span>
+                </div>
+                <ol className="space-y-1.5 text-sm text-[#1A1C1E] list-decimal list-inside">
+                  {rec.evidence.map((e, i) => (
+                    <li key={i} className="leading-relaxed">
+                      {e}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          )}
+          {rec?.error && (
+            <div className="border border-[#B8422E]/40 rounded-[4px] p-4 text-sm text-[#B8422E]">
+              {rec.error}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}

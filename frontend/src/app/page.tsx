@@ -16,6 +16,7 @@ import type { Severity } from "@/lib/types";
 import WarRoom from "@/components/WarRoom";
 import dynamic from "next/dynamic";
 const StreamPanel = dynamic(() => import("@/components/StreamPanel"), { ssr: false });
+const CiscoPanel = dynamic(() => import("@/components/CiscoPanel"), { ssr: false });
 
 const SEVERITY_META: Record<
   Severity,
@@ -119,7 +120,7 @@ export default function Dashboard() {
           <div>
             <h1 className="text-4xl font-bold tracking-tight leading-none">Sentinel</h1>
             <p className="text-[#6C7278] text-sm mt-2">
-              Runtime firewall for AI agents — the Failure Detective for the AI Factory
+              One operations layer for the AI Factory. Same engine analyzes the agents on top and the infrastructure underneath.
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-[4px] border border-[#6C7278]/25 bg-white/70">
@@ -223,6 +224,17 @@ export default function Dashboard() {
           </button>
         </section>
 
+        {/* Layer 1: Agent — live tool calls */}
+        <div className="mb-3 flex items-center gap-3">
+          <div className="px-2.5 py-1 rounded-[4px] bg-[#1A1C1E] text-white text-[10px] tracking-[0.2em] font-bold">
+            LAYER 1
+          </div>
+          <h2 className="text-base font-semibold">Agent layer</h2>
+          <span className="text-[#6C7278] text-sm">
+            live tool-call interception · per-event severity routing
+          </span>
+        </div>
+
         {/* Main grid: events table + stream chat */}
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-5">
           <section className="bg-white border border-[#6C7278]/15 rounded-[8px] overflow-hidden">
@@ -319,6 +331,24 @@ export default function Dashboard() {
           )}
         </div>
 
+        {/* Layer 2: Infrastructure — Cisco AI Factory scenarios */}
+        {stats?.cisco?.available && (
+          <>
+            <div className="mt-10 mb-3 flex items-center gap-3">
+              <div className="px-2.5 py-1 rounded-[4px] bg-[#1A1C1E] text-white text-[10px] tracking-[0.2em] font-bold">
+                LAYER 2
+              </div>
+              <h2 className="text-base font-semibold">Infrastructure layer</h2>
+              <span className="text-[#6C7278] text-sm">
+                Cisco AI Factory scenarios · scenario in → recommended action with cited evidence out
+              </span>
+            </div>
+            <section className="mb-8">
+              <CiscoPanel />
+            </section>
+          </>
+        )}
+
         {/* Footer status bar */}
         <footer className="mt-8 flex flex-wrap items-center gap-2 border-t border-[#6C7278]/20 pt-5">
           <StatusPill
@@ -337,6 +367,11 @@ export default function Dashboard() {
             label="Twilio"
             ok={stats?.twilio?.available}
             detail={stats?.twilio?.oncall_number ?? undefined}
+          />
+          <StatusPill
+            label="Cisco"
+            ok={stats?.cisco?.available}
+            detail={stats?.cisco?.scenarios ? `${stats.cisco.scenarios} scenarios` : undefined}
           />
 
           {evalM && (

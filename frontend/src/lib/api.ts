@@ -24,6 +24,43 @@ export async function callOncall(incidentId: string) {
   return r.json();
 }
 
+export interface CiscoScenario {
+  scenario_id: string;
+  track_id: "performance_advisor" | "gpu_placement" | "failure_detective";
+  focus_entity: string;
+  prompt: string;
+  window: [string, string];
+  critical_alerts: number;
+  top_alert_types: string;
+}
+
+export interface CiscoRecommendation {
+  scenario_id: string;
+  recommended_action: string;
+  target: string;
+  reason_category: string;
+  confidence: number;
+  evidence: string[];
+  used_llm: boolean;
+  scenario: {
+    track_id: string;
+    focus_entity: string;
+    prompt: string;
+    window: [string, string];
+  };
+  error?: string;
+}
+
+export async function listCiscoScenarios(): Promise<CiscoScenario[]> {
+  const r = await fetch(`${API_BASE}/api/cisco/scenarios`);
+  return r.json();
+}
+
+export async function evaluateCiscoScenario(id: string): Promise<CiscoRecommendation> {
+  const r = await fetch(`${API_BASE}/api/cisco/evaluate/${id}`, { method: "POST" });
+  return r.json();
+}
+
 export interface Stats {
   traffic_running: boolean;
   events_seen: number;
@@ -35,6 +72,7 @@ export interface Stats {
     from_number: string | null;
     oncall_number: string | null;
   };
+  cisco?: { available: boolean; scenarios: number };
 }
 
 export interface EvalMetrics {

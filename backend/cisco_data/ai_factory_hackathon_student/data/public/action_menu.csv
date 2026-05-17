@@ -1,0 +1,17 @@
+track_id,track_name,action_id,description
+performance_advisor,AI App Performance Advisor,add_capacity,Add or reserve serving capacity for the affected model or service.
+performance_advisor,AI App Performance Advisor,reduce_load,"Reduce batch size, shed low-priority requests, or lower load on the affected service."
+performance_advisor,AI App Performance Advisor,reroute_traffic,"Move traffic away from an unhealthy node, rack, or pool."
+performance_advisor,AI App Performance Advisor,rollback_config,"Rollback a bad model, tokenizer, or serving configuration change."
+performance_advisor,AI App Performance Advisor,investigate_errors,Inspect elevated errors before changing capacity.
+performance_advisor,AI App Performance Advisor,no_action,No operational action is needed for this scenario.
+gpu_placement,GPU Job Placement Challenge,reserve_full_node,Keep full 8-GPU nodes available for large or multi-node jobs.
+gpu_placement,GPU Job Placement Challenge,backfill_small_jobs,Use small jobs to fill idle GPU slots when larger jobs are not blocked.
+gpu_placement,GPU Job Placement Challenge,prioritize_urgent_jobs,Move urgent or high-priority jobs earlier in the schedule.
+gpu_placement,GPU Job Placement Challenge,avoid_unhealthy_node,"Avoid placing new jobs on a hot, unhealthy, or erroring node."
+gpu_placement,GPU Job Placement Challenge,no_action,No placement policy change is needed for this scenario.
+failure_detective,AI Job Failure Detective,retry_job,Retry the failed job as-is when evidence points to a transient failure.
+failure_detective,AI Job Failure Detective,restart_from_checkpoint,Restart from the most recent checkpoint.
+failure_detective,AI Job Failure Detective,move_job,Move or restart the job on a healthier node or rack.
+failure_detective,AI Job Failure Detective,reduce_load,"Reduce batch size, concurrency, or load for the affected job or service."
+failure_detective,AI Job Failure Detective,escalate,Escalate when the evidence is unclear or likely user-code-related.

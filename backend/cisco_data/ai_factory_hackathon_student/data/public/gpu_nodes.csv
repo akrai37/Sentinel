@@ -1,0 +1,13 @@
+node_id,rack_id,zone,pool,gpu_class,gpu_count,gpu_memory_gb,cost_per_hour_usd,power_limit_watts,status
+gpu-node-01,rack-a,zone-1,serving,high-mem-80gb,8,80,52.0,7200,active
+gpu-node-02,rack-a,zone-1,serving,high-mem-80gb,8,80,52.0,7200,active
+gpu-node-03,rack-b,zone-1,serving,high-mem-80gb,8,80,52.0,7200,active
+gpu-node-04,rack-b,zone-1,serving,high-mem-80gb,8,80,52.0,7200,active
+gpu-node-05,rack-c,zone-1,training,training-80gb,8,80,48.0,7000,active
+gpu-node-06,rack-c,zone-1,training,training-80gb,8,80,48.0,7000,active
+gpu-node-07,rack-d,zone-2,training,training-80gb,8,80,48.0,7000,active
+gpu-node-08,rack-d,zone-2,training,training-80gb,8,80,48.0,7000,active
+gpu-node-09,rack-e,zone-2,shared,balanced-48gb,8,48,30.0,5400,active
+gpu-node-10,rack-e,zone-2,shared,balanced-48gb,8,48,30.0,5400,active
+gpu-node-11,rack-f,zone-2,shared,balanced-48gb,8,48,30.0,5400,active
+gpu-node-12,rack-f,zone-2,shared,balanced-48gb,8,48,30.0,5400,active

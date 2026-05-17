@@ -1,0 +1,71 @@
+{
+  "name": "AI Factory Ops Full Synthetic Dataset",
+  "version": "1.0",
+  "seed": 20260514,
+  "start": "2026-04-01T00:00:00Z",
+  "duration_days": 14,
+  "interval_minutes": 15,
+  "node_count": 12,
+  "total_gpus": 96,
+  "tracks_supported": [
+    "AI App Performance Advisor",
+    "GPU Job Placement Challenge",
+    "AI Job Failure Detective"
+  ],
+  "student_files": [
+    "gpu_nodes.csv",
+    "model_profiles.csv",
+    "serving_replicas.csv",
+    "inference_requests.csv",
+    "job_queue.csv",
+    "placement_snapshots.csv",
+    "node_metrics.csv",
+    "network_metrics.csv",
+    "storage_metrics.csv",
+    "alerts.csv",
+    "logs.csv",
+    "checkpoint_events.csv",
+    "runbooks.md",
+    "data_dictionary.md",
+    "scenario_signal_summary.csv",
+    "action_menu.csv",
+    "evaluation_scenarios.csv",
+    "sample_recommendations.json",
+    "dataset_manifest.json",
+    "../../ai_factory.duckdb",
+    "../../example_queries.sql",
+    "../../validate_recommendation.py"
+  ],
+  "organizer_only_files": [
+    "incident_labels.csv",
+    "expected_recommendations.csv",
+    "reference_recommendations.json",
+    "scenario_signal_index.csv",
+    "scoring_notes.md"
+  ],
+  "row_counts": {
+    "action_menu.csv": 16,
+    "alerts.csv": 152,
+    "checkpoint_events.csv": 624,
+    "evaluation_scenarios.csv": 18,
+    "gpu_nodes.csv": 12,
+    "inference_requests.csv": 30902,
+    "job_queue.csv": 779,
+    "logs.csv": 300,
+    "model_profiles.csv": 7,
+    "network_metrics.csv": 8064,
+    "node_metrics.csv": 16128,
+    "placement_snapshots.csv": 4032,
+    "scenario_signal_summary.csv": 18,
+    "serving_replicas.csv": 9408,
+    "storage_metrics.csv": 4032
+  },
+  "recommendation_schema": [
+    "scenario_id",
+    "recommended_action",
+    "target",
+    "reason_category",
+    "confidence",
+    "evidence"
+  ]
+}

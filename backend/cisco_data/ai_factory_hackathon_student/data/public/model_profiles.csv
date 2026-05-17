@@ -1,0 +1,8 @@
+model_name,workload_type,serving_pool,preferred_gpu_class,tokens_per_second_per_gpu,memory_required_gb,kv_cache_gb_per_1k_tokens,target_ttft_ms,target_itl_ms,target_p95_latency_ms,default_replicas,max_batch_size
+chat-small-8b,llm_inference,shared,balanced-48gb,16.0,18,0.9,550,45,18000,2,16
+chat-mid-34b,llm_inference,serving,high-mem-80gb,6.5,62,2.8,900,95,42000,3,12
+code-assist-15b,llm_inference,shared,balanced-48gb,10.0,34,1.7,700,70,28000,2,14
+vision-chat-12b,multimodal_inference,serving,high-mem-80gb,5.0,58,2.2,1200,105,55000,2,8
+embed-small,embedding,shared,balanced-48gb,38.0,12,0.2,180,10,900,2,64
+reranker-3b,ranking,shared,balanced-48gb,28.0,10,0.3,220,16,1200,1,48
+batch-summarizer-7b,batch_inference,training,training-80gb,13.0,22,1.1,650,55,22000,1,24

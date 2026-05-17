@@ -22,6 +22,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 
 from . import llm_classifier
+from .cisco import advisor as cisco_advisor
+from .cisco import data as cisco_data
 from .data.synthetic_traces import emit_demo_attack, stream_traces
 from .escalation import stream as stream_chat
 from .escalation import trtc
@@ -88,7 +90,53 @@ async def stats() -> dict:
         "trtc": {"available": trtc.available()},
         "stream": {"available": stream_chat.available()},
         "twilio": twilio_call.status(),
+        "cisco": {
+            "available": cisco_data.available(),
+            "scenarios": len(cisco_data.scenarios()) if cisco_data.available() else 0,
+        },
     }
+
+
+@app.get("/api/cisco/scenarios")
+async def list_cisco_scenarios() -> list[dict]:
+    """List Cisco AI-Factory scenarios with their summary signals."""
+    if not cisco_data.available():
+        return []
+    out = []
+    summaries = cisco_data.scenario_summary()
+    for s in cisco_data.scenarios():
+        sid = s["scenario_id"]
+        sm = summaries.get(sid, {})
+        out.append({
+            "scenario_id": sid,
+            "track_id": s["track_id"],
+            "focus_entity": s.get("focus_entity"),
+            "prompt": s.get("prompt"),
+            "window": [s["start_time"], s["end_time"]],
+            "critical_alerts": int(sm.get("critical_alerts") or 0),
+            "top_alert_types": sm.get("top_alert_types") or "",
+        })
+    return out
+
+
+@app.post("/api/cisco/evaluate/{scenario_id}")
+async def evaluate_cisco_scenario(scenario_id: str) -> dict:
+    """Return Sentinel's structured recommendation for one scenario."""
+    if not cisco_data.available():
+        return {"error": "cisco_data_unavailable"}
+    rec = await cisco_advisor.recommend(scenario_id)
+    if rec is None:
+        return {"error": "scenario_not_found", "scenario_id": scenario_id}
+    return rec
+
+
+@app.post("/api/cisco/evaluate_all")
+async def evaluate_all_cisco() -> dict:
+    """Run the advisor across all scenarios; useful for batch judging hook."""
+    if not cisco_data.available():
+        return {"error": "cisco_data_unavailable", "results": []}
+    results = await cisco_advisor.recommend_all()
+    return {"count": len(results), "results": results}
 
 
 @app.post("/api/incidents/{incident_id}/call")

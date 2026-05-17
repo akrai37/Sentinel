@@ -1,6 +1,9 @@
 .env
 .env.*
 !.env.example
+
+# Cisco-provided binary dataset (CSVs are committed; duckdb is large)
+backend/cisco_data/**/*.duckdb
 node_modules/
 __pycache__/
 *.pyc

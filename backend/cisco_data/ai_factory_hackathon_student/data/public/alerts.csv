@@ -1,0 +1,153 @@
+alert_id,timestamp,severity,service,node_id,rack_id,related_job_id,model_name,alert_type,message,acknowledged
+alert-00074,2026-04-01T00:12:00Z,warning,inference-gateway,gpu-node-07,rack-d,,chat-small-8b,InferenceLatencyHigh,p95 latency above service target,false
+alert-00148,2026-04-01T04:31:00Z,warning,training-scheduler,,,,embed-small,QueueDepthHigh,training queue depth above expected range,true
+alert-00109,2026-04-01T08:09:00Z,warning,inference-gateway,gpu-node-07,rack-d,,code-assist-15b,InferenceLatencyHigh,p95 latency above service target,true
+alert-00068,2026-04-01T13:12:00Z,warning,gpu-node-health,gpu-node-03,rack-b,,embed-small,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00093,2026-04-01T13:51:00Z,warning,gpu-node-health,gpu-node-08,rack-d,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00151,2026-04-01T17:41:00Z,warning,gpu-node-health,gpu-node-01,rack-a,,,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00096,2026-04-01T21:16:00Z,warning,inference-gateway,gpu-node-09,rack-e,,code-assist-15b,InferenceLatencyHigh,p95 latency above service target,false
+alert-00078,2026-04-01T22:57:00Z,warning,checkpoint-storage,gpu-node-09,rack-e,,chat-small-8b,CheckpointSlow,checkpoint latency above expected range,false
+alert-00094,2026-04-02T04:53:00Z,warning,gpu-node-health,gpu-node-06,rack-c,,,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00140,2026-04-02T11:59:00Z,warning,gpu-node-health,gpu-node-05,rack-c,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00132,2026-04-02T16:15:00Z,warning,checkpoint-storage,gpu-node-02,rack-a,,code-assist-15b,CheckpointSlow,checkpoint latency above expected range,true
+alert-00087,2026-04-02T18:04:00Z,warning,gpu-node-health,gpu-node-03,rack-b,,embed-small,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00091,2026-04-03T01:30:00Z,warning,gpu-node-health,gpu-node-05,rack-c,,,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00145,2026-04-03T09:15:00Z,warning,inference-gateway,gpu-node-01,rack-a,,,InferenceLatencyHigh,p95 latency above service target,false
+alert-00001,2026-04-03T10:07:00Z,critical,inference-gateway,gpu-node-03,rack-b,,chat-mid-34b,MemoryPressureHigh,chat-mid-34b latency and KV cache pressure elevated,true
+alert-00002,2026-04-03T10:22:00Z,critical,inference-gateway,gpu-node-03,rack-b,,chat-mid-34b,MemoryPressureHigh,chat-mid-34b latency and KV cache pressure elevated,true
+alert-00003,2026-04-03T10:38:00Z,critical,inference-gateway,gpu-node-03,rack-b,,chat-mid-34b,MemoryPressureHigh,chat-mid-34b latency and KV cache pressure elevated,true
+alert-00004,2026-04-03T11:04:00Z,critical,inference-gateway,gpu-node-03,rack-b,,chat-mid-34b,MemoryPressureHigh,chat-mid-34b latency and KV cache pressure elevated,false
+alert-00005,2026-04-03T11:27:00Z,critical,inference-gateway,gpu-node-03,rack-b,,chat-mid-34b,MemoryPressureHigh,chat-mid-34b latency and KV cache pressure elevated,false
+alert-00006,2026-04-03T11:42:00Z,critical,inference-gateway,gpu-node-03,rack-b,,chat-mid-34b,MemoryPressureHigh,chat-mid-34b latency and KV cache pressure elevated,false
+alert-00070,2026-04-03T12:55:00Z,warning,checkpoint-storage,gpu-node-01,rack-a,,,CheckpointSlow,checkpoint latency above expected range,true
+alert-00082,2026-04-03T14:02:00Z,warning,gpu-node-health,gpu-node-03,rack-b,,embed-small,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00150,2026-04-03T23:33:00Z,warning,training-scheduler,,,,,QueueDepthHigh,training queue depth above expected range,true
+alert-00107,2026-04-04T00:42:00Z,warning,training-scheduler,,,,chat-small-8b,QueueDepthHigh,training queue depth above expected range,false
+alert-00128,2026-04-04T01:36:00Z,warning,gpu-node-health,gpu-node-02,rack-a,,chat-small-8b,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00090,2026-04-04T07:30:00Z,warning,inference-gateway,gpu-node-09,rack-e,,embed-small,InferenceLatencyHigh,p95 latency above service target,true
+alert-00029,2026-04-04T14:08:00Z,warning,training-scheduler,,,,,QueueDepthHigh,large GPU jobs waiting while nodes are partially occupied,false
+alert-00030,2026-04-04T14:33:00Z,warning,training-scheduler,,,,,QueueDepthHigh,large GPU jobs waiting while nodes are partially occupied,false
+alert-00031,2026-04-04T14:45:00Z,warning,training-scheduler,,,,,QueueDepthHigh,large GPU jobs waiting while nodes are partially occupied,false
+alert-00032,2026-04-04T15:00:00Z,warning,training-scheduler,,,,,QueueDepthHigh,large GPU jobs waiting while nodes are partially occupied,false
+alert-00033,2026-04-04T15:13:00Z,warning,training-scheduler,,,,,QueueDepthHigh,large GPU jobs waiting while nodes are partially occupied,false
+alert-00034,2026-04-04T15:25:00Z,warning,training-scheduler,,,,,QueueDepthHigh,large GPU jobs waiting while nodes are partially occupied,true
+alert-00119,2026-04-04T15:33:00Z,warning,inference-gateway,gpu-node-02,rack-a,,chat-small-8b,InferenceLatencyHigh,p95 latency above service target,true
+alert-00035,2026-04-04T15:37:00Z,warning,training-scheduler,,,,,QueueDepthHigh,large GPU jobs waiting while nodes are partially occupied,true
+alert-00036,2026-04-04T15:58:00Z,warning,training-scheduler,,,,,QueueDepthHigh,large GPU jobs waiting while nodes are partially occupied,false
+alert-00106,2026-04-04T20:41:00Z,warning,checkpoint-storage,gpu-node-09,rack-e,,,CheckpointSlow,checkpoint latency above expected range,true
+alert-00122,2026-04-04T21:48:00Z,warning,inference-gateway,gpu-node-02,rack-a,,,InferenceLatencyHigh,p95 latency above service target,false
+alert-00144,2026-04-05T00:45:00Z,warning,checkpoint-storage,gpu-node-05,rack-c,,,CheckpointSlow,checkpoint latency above expected range,false
+alert-00085,2026-04-05T02:44:00Z,warning,inference-gateway,gpu-node-11,rack-f,,chat-small-8b,InferenceLatencyHigh,p95 latency above service target,true
+alert-00086,2026-04-05T04:56:00Z,warning,gpu-node-health,gpu-node-06,rack-c,,,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00134,2026-04-05T06:21:00Z,warning,inference-gateway,gpu-node-10,rack-e,,,InferenceLatencyHigh,p95 latency above service target,false
+alert-00103,2026-04-05T08:02:00Z,warning,gpu-node-health,gpu-node-07,rack-d,,,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00102,2026-04-05T12:51:00Z,warning,checkpoint-storage,gpu-node-08,rack-d,,chat-small-8b,CheckpointSlow,checkpoint latency above expected range,true
+alert-00125,2026-04-05T15:51:00Z,warning,gpu-node-health,gpu-node-10,rack-e,,chat-small-8b,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00007,2026-04-05T18:00:00Z,warning,inference-gateway,,rack-e,,embed-small,ReplicaErrorRateHigh,embed-small returning elevated 429 rate during traffic burst,false
+alert-00008,2026-04-05T18:21:00Z,warning,inference-gateway,,rack-e,,embed-small,ReplicaErrorRateHigh,embed-small returning elevated 429 rate during traffic burst,true
+alert-00009,2026-04-05T18:33:00Z,warning,inference-gateway,,rack-e,,embed-small,ReplicaErrorRateHigh,embed-small returning elevated 429 rate during traffic burst,true
+alert-00010,2026-04-05T18:39:00Z,warning,inference-gateway,,rack-e,,embed-small,ReplicaErrorRateHigh,embed-small returning elevated 429 rate during traffic burst,false
+alert-00011,2026-04-05T18:58:00Z,warning,inference-gateway,,rack-e,,embed-small,ReplicaErrorRateHigh,embed-small returning elevated 429 rate during traffic burst,true
+alert-00012,2026-04-05T19:03:00Z,warning,inference-gateway,,rack-e,,embed-small,ReplicaErrorRateHigh,embed-small returning elevated 429 rate during traffic burst,false
+alert-00101,2026-04-06T01:17:00Z,warning,gpu-node-health,gpu-node-10,rack-e,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00051,2026-04-06T02:03:00Z,critical,checkpoint-storage,,,,,CheckpointWriteTimeout,checkpoint write latency causing training failures,false
+alert-00052,2026-04-06T02:16:00Z,critical,checkpoint-storage,,,,,CheckpointWriteTimeout,checkpoint write latency causing training failures,false
+alert-00053,2026-04-06T02:25:00Z,critical,checkpoint-storage,,,,,CheckpointWriteTimeout,checkpoint write latency causing training failures,false
+alert-00054,2026-04-06T02:44:00Z,critical,checkpoint-storage,,,,,CheckpointWriteTimeout,checkpoint write latency causing training failures,true
+alert-00055,2026-04-06T03:07:00Z,critical,checkpoint-storage,,,,,CheckpointWriteTimeout,checkpoint write latency causing training failures,false
+alert-00056,2026-04-06T03:22:00Z,critical,checkpoint-storage,,,,,CheckpointWriteTimeout,checkpoint write latency causing training failures,false
+alert-00057,2026-04-06T03:43:00Z,critical,checkpoint-storage,,,,,CheckpointWriteTimeout,checkpoint write latency causing training failures,false
+alert-00058,2026-04-06T04:03:00Z,critical,checkpoint-storage,,,,,CheckpointWriteTimeout,checkpoint write latency causing training failures,false
+alert-00073,2026-04-06T04:14:00Z,warning,inference-gateway,gpu-node-09,rack-e,,chat-small-8b,InferenceLatencyHigh,p95 latency above service target,true
+alert-00147,2026-04-06T07:12:00Z,warning,gpu-node-health,gpu-node-10,rack-e,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00120,2026-04-06T13:56:00Z,warning,gpu-node-health,gpu-node-09,rack-e,,chat-small-8b,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00092,2026-04-06T15:06:00Z,warning,gpu-node-health,gpu-node-04,rack-b,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00088,2026-04-06T15:28:00Z,warning,training-scheduler,,,,,QueueDepthHigh,training queue depth above expected range,true
+alert-00081,2026-04-06T16:57:00Z,warning,gpu-node-health,gpu-node-08,rack-d,,embed-small,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00072,2026-04-06T22:23:00Z,warning,gpu-node-health,gpu-node-06,rack-c,,embed-small,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00139,2026-04-07T03:34:00Z,warning,inference-gateway,gpu-node-02,rack-a,,,InferenceLatencyHigh,p95 latency above service target,true
+alert-00043,2026-04-07T10:02:00Z,warning,training-scheduler,,,,,MultiNodePlacementBlocked,32-GPU jobs waiting for full-node availability,false
+alert-00044,2026-04-07T10:22:00Z,warning,training-scheduler,,,,,MultiNodePlacementBlocked,32-GPU jobs waiting for full-node availability,false
+alert-00045,2026-04-07T10:49:00Z,warning,training-scheduler,,,,,MultiNodePlacementBlocked,32-GPU jobs waiting for full-node availability,false
+alert-00046,2026-04-07T11:00:00Z,warning,training-scheduler,,,,,MultiNodePlacementBlocked,32-GPU jobs waiting for full-node availability,true
+alert-00047,2026-04-07T11:10:00Z,warning,training-scheduler,,,,,MultiNodePlacementBlocked,32-GPU jobs waiting for full-node availability,false
+alert-00048,2026-04-07T11:20:00Z,warning,training-scheduler,,,,,MultiNodePlacementBlocked,32-GPU jobs waiting for full-node availability,false
+alert-00049,2026-04-07T11:37:00Z,warning,training-scheduler,,,,,MultiNodePlacementBlocked,32-GPU jobs waiting for full-node availability,false
+alert-00050,2026-04-07T12:00:00Z,warning,training-scheduler,,,,,MultiNodePlacementBlocked,32-GPU jobs waiting for full-node availability,false
+alert-00121,2026-04-07T18:22:00Z,warning,checkpoint-storage,gpu-node-01,rack-a,,embed-small,CheckpointSlow,checkpoint latency above expected range,true
+alert-00116,2026-04-07T23:05:00Z,warning,training-scheduler,,,,embed-small,QueueDepthHigh,training queue depth above expected range,true
+alert-00104,2026-04-08T01:39:00Z,warning,inference-gateway,gpu-node-11,rack-f,,embed-small,InferenceLatencyHigh,p95 latency above service target,false
+alert-00136,2026-04-08T04:05:00Z,warning,inference-gateway,gpu-node-08,rack-d,,,InferenceLatencyHigh,p95 latency above service target,false
+alert-00129,2026-04-08T05:34:00Z,warning,inference-gateway,gpu-node-04,rack-b,,embed-small,InferenceLatencyHigh,p95 latency above service target,true
+alert-00013,2026-04-08T09:34:00Z,critical,ai-fabric,,rack-c,,,FabricCongestionHigh,rack-c RDMA latency and retransmits above threshold,false
+alert-00014,2026-04-08T09:48:00Z,critical,ai-fabric,,rack-c,,,FabricCongestionHigh,rack-c RDMA latency and retransmits above threshold,true
+alert-00015,2026-04-08T10:09:00Z,critical,ai-fabric,,rack-c,,,FabricCongestionHigh,rack-c RDMA latency and retransmits above threshold,true
+alert-00123,2026-04-08T10:13:00Z,warning,gpu-node-health,gpu-node-01,rack-a,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00016,2026-04-08T10:16:00Z,critical,ai-fabric,,rack-c,,,FabricCongestionHigh,rack-c RDMA latency and retransmits above threshold,false
+alert-00017,2026-04-08T10:36:00Z,critical,ai-fabric,,rack-c,,,FabricCongestionHigh,rack-c RDMA latency and retransmits above threshold,true
+alert-00018,2026-04-08T10:40:00Z,critical,ai-fabric,,rack-c,,,FabricCongestionHigh,rack-c RDMA latency and retransmits above threshold,false
+alert-00135,2026-04-08T10:51:00Z,warning,gpu-node-health,gpu-node-02,rack-a,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00137,2026-04-09T10:39:00Z,warning,inference-gateway,gpu-node-07,rack-d,,embed-small,InferenceLatencyHigh,p95 latency above service target,false
+alert-00098,2026-04-09T11:38:00Z,warning,inference-gateway,gpu-node-04,rack-b,,chat-small-8b,InferenceLatencyHigh,p95 latency above service target,false
+alert-00141,2026-04-09T14:28:00Z,warning,checkpoint-storage,gpu-node-10,rack-e,,,CheckpointSlow,checkpoint latency above expected range,true
+alert-00037,2026-04-09T15:07:00Z,warning,training-scheduler,,,,,PriorityWaitHigh,high-priority jobs waiting behind lower-priority work,false
+alert-00038,2026-04-09T15:34:00Z,warning,training-scheduler,,,,,PriorityWaitHigh,high-priority jobs waiting behind lower-priority work,true
+alert-00039,2026-04-09T15:41:00Z,warning,training-scheduler,,,,,PriorityWaitHigh,high-priority jobs waiting behind lower-priority work,false
+alert-00040,2026-04-09T16:00:00Z,warning,training-scheduler,,,,,PriorityWaitHigh,high-priority jobs waiting behind lower-priority work,true
+alert-00041,2026-04-09T16:20:00Z,warning,training-scheduler,,,,,PriorityWaitHigh,high-priority jobs waiting behind lower-priority work,true
+alert-00042,2026-04-09T16:32:00Z,warning,training-scheduler,,,,,PriorityWaitHigh,high-priority jobs waiting behind lower-priority work,false
+alert-00079,2026-04-09T18:02:00Z,warning,checkpoint-storage,gpu-node-01,rack-a,,,CheckpointSlow,checkpoint latency above expected range,true
+alert-00130,2026-04-10T01:30:00Z,warning,checkpoint-storage,gpu-node-11,rack-f,,,CheckpointSlow,checkpoint latency above expected range,true
+alert-00089,2026-04-10T02:22:00Z,warning,gpu-node-health,gpu-node-08,rack-d,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00084,2026-04-10T05:50:00Z,warning,gpu-node-health,gpu-node-05,rack-c,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00075,2026-04-10T07:29:00Z,warning,gpu-node-health,gpu-node-12,rack-f,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00019,2026-04-10T13:19:00Z,critical,inference-gateway,,rack-e,,code-assist-15b,RolloutErrorRateHigh,code-assist-15b 5xx rate increased after config rollout,false
+alert-00020,2026-04-10T13:34:00Z,critical,inference-gateway,,rack-e,,code-assist-15b,RolloutErrorRateHigh,code-assist-15b 5xx rate increased after config rollout,false
+alert-00021,2026-04-10T13:51:00Z,critical,inference-gateway,,rack-e,,code-assist-15b,RolloutErrorRateHigh,code-assist-15b 5xx rate increased after config rollout,true
+alert-00022,2026-04-10T13:59:00Z,critical,inference-gateway,,rack-e,,code-assist-15b,RolloutErrorRateHigh,code-assist-15b 5xx rate increased after config rollout,false
+alert-00023,2026-04-10T14:13:00Z,critical,inference-gateway,,rack-e,,code-assist-15b,RolloutErrorRateHigh,code-assist-15b 5xx rate increased after config rollout,false
+alert-00024,2026-04-10T14:25:00Z,critical,inference-gateway,,rack-e,,code-assist-15b,RolloutErrorRateHigh,code-assist-15b 5xx rate increased after config rollout,false
+alert-00152,2026-04-10T15:08:00Z,warning,inference-gateway,gpu-node-04,rack-b,,code-assist-15b,InferenceLatencyHigh,p95 latency above service target,false
+alert-00108,2026-04-10T18:38:00Z,warning,checkpoint-storage,gpu-node-10,rack-e,,chat-small-8b,CheckpointSlow,checkpoint latency above expected range,true
+alert-00133,2026-04-10T22:55:00Z,warning,inference-gateway,gpu-node-08,rack-d,,chat-small-8b,InferenceLatencyHigh,p95 latency above service target,false
+alert-00097,2026-04-11T00:27:00Z,warning,training-scheduler,,,,code-assist-15b,QueueDepthHigh,training queue depth above expected range,false
+alert-00111,2026-04-11T01:26:00Z,warning,training-scheduler,,,,,QueueDepthHigh,training queue depth above expected range,false
+alert-00126,2026-04-11T01:46:00Z,warning,inference-gateway,gpu-node-07,rack-d,,,InferenceLatencyHigh,p95 latency above service target,false
+alert-00127,2026-04-11T02:31:00Z,warning,gpu-node-health,gpu-node-05,rack-c,,chat-small-8b,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00117,2026-04-11T08:41:00Z,warning,gpu-node-health,gpu-node-06,rack-c,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00071,2026-04-11T12:55:00Z,warning,checkpoint-storage,gpu-node-04,rack-b,,code-assist-15b,CheckpointSlow,checkpoint latency above expected range,false
+alert-00059,2026-04-11T20:07:00Z,critical,gpu-node-health,gpu-node-09,rack-e,,,GpuXidEccError,gpu-node-09 reported GPU XID/ECC errors,true
+alert-00060,2026-04-11T20:17:00Z,critical,gpu-node-health,gpu-node-09,rack-e,,,GpuXidEccError,gpu-node-09 reported GPU XID/ECC errors,false
+alert-00061,2026-04-11T20:28:00Z,critical,gpu-node-health,gpu-node-09,rack-e,,,GpuXidEccError,gpu-node-09 reported GPU XID/ECC errors,false
+alert-00062,2026-04-11T20:49:00Z,critical,gpu-node-health,gpu-node-09,rack-e,,,GpuXidEccError,gpu-node-09 reported GPU XID/ECC errors,true
+alert-00063,2026-04-11T20:57:00Z,critical,gpu-node-health,gpu-node-09,rack-e,,,GpuXidEccError,gpu-node-09 reported GPU XID/ECC errors,true
+alert-00064,2026-04-11T21:33:00Z,critical,gpu-node-health,gpu-node-09,rack-e,,,GpuXidEccError,gpu-node-09 reported GPU XID/ECC errors,false
+alert-00113,2026-04-11T22:41:00Z,warning,checkpoint-storage,gpu-node-11,rack-f,,embed-small,CheckpointSlow,checkpoint latency above expected range,false
+alert-00080,2026-04-12T03:10:00Z,warning,checkpoint-storage,gpu-node-01,rack-a,,,CheckpointSlow,checkpoint latency above expected range,true
+alert-00146,2026-04-12T05:25:00Z,warning,training-scheduler,,,,,QueueDepthHigh,training queue depth above expected range,false
+alert-00025,2026-04-12T09:17:00Z,critical,gpu-node-health,gpu-node-02,rack-a,,,NodeTemperatureHigh,gpu-node-02 temperature and power above normal range,true
+alert-00100,2026-04-12T09:26:00Z,warning,training-scheduler,,,,embed-small,QueueDepthHigh,training queue depth above expected range,false
+alert-00026,2026-04-12T09:50:00Z,critical,gpu-node-health,gpu-node-02,rack-a,,,NodeTemperatureHigh,gpu-node-02 temperature and power above normal range,false
+alert-00027,2026-04-12T09:59:00Z,critical,gpu-node-health,gpu-node-02,rack-a,,,NodeTemperatureHigh,gpu-node-02 temperature and power above normal range,false
+alert-00028,2026-04-12T10:17:00Z,critical,gpu-node-health,gpu-node-02,rack-a,,,NodeTemperatureHigh,gpu-node-02 temperature and power above normal range,false
+alert-00076,2026-04-12T12:21:00Z,warning,inference-gateway,gpu-node-06,rack-c,,chat-small-8b,InferenceLatencyHigh,p95 latency above service target,true
+alert-00142,2026-04-12T17:10:00Z,warning,inference-gateway,gpu-node-05,rack-c,,chat-small-8b,InferenceLatencyHigh,p95 latency above service target,false
+alert-00099,2026-04-12T17:40:00Z,warning,training-scheduler,,,,embed-small,QueueDepthHigh,training queue depth above expected range,true
+alert-00131,2026-04-12T18:13:00Z,warning,checkpoint-storage,gpu-node-04,rack-b,,,CheckpointSlow,checkpoint latency above expected range,false
+alert-00143,2026-04-12T19:21:00Z,warning,gpu-node-health,gpu-node-10,rack-e,,embed-small,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00110,2026-04-13T05:41:00Z,warning,gpu-node-health,gpu-node-10,rack-e,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00095,2026-04-13T08:24:00Z,warning,inference-gateway,gpu-node-02,rack-a,,,InferenceLatencyHigh,p95 latency above service target,true
+alert-00105,2026-04-13T12:05:00Z,warning,gpu-node-health,gpu-node-12,rack-f,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00114,2026-04-13T13:04:00Z,warning,gpu-node-health,gpu-node-03,rack-b,,,MemoryPressureHigh,GPU memory utilization above threshold,false
+alert-00065,2026-04-13T13:05:00Z,warning,training-job,,,,,JobFailureCluster,several jobs failed without matching infrastructure alerts,false
+alert-00066,2026-04-13T13:23:00Z,warning,training-job,,,,,JobFailureCluster,several jobs failed without matching infrastructure alerts,true
+alert-00067,2026-04-13T13:45:00Z,warning,training-job,,,,,JobFailureCluster,several jobs failed without matching infrastructure alerts,true
+alert-00138,2026-04-13T17:46:00Z,warning,checkpoint-storage,gpu-node-12,rack-f,,,CheckpointSlow,checkpoint latency above expected range,false
+alert-00083,2026-04-13T18:35:00Z,warning,training-scheduler,,,,chat-small-8b,QueueDepthHigh,training queue depth above expected range,true
+alert-00077,2026-04-14T08:55:00Z,warning,gpu-node-health,gpu-node-11,rack-f,,code-assist-15b,MemoryPressureHigh,GPU memory utilization above threshold,true
+alert-00149,2026-04-14T13:39:00Z,warning,checkpoint-storage,gpu-node-07,rack-d,,chat-small-8b,CheckpointSlow,checkpoint latency above expected range,true
+alert-00115,2026-04-14T16:29:00Z,warning,training-scheduler,,,,embed-small,QueueDepthHigh,training queue depth above expected range,false
+alert-00112,2026-04-14T16:38:00Z,warning,inference-gateway,gpu-node-08,rack-d,,code-assist-15b,InferenceLatencyHigh,p95 latency above service target,true
+alert-00118,2026-04-14T16:48:00Z,warning,training-scheduler,,,,,QueueDepthHigh,training queue depth above expected range,false
+alert-00069,2026-04-14T19:04:00Z,warning,inference-gateway,gpu-node-09,rack-e,,chat-small-8b,InferenceLatencyHigh,p95 latency above service target,false
+alert-00124,2026-04-14T21:05:00Z,warning,gpu-node-health,gpu-node-02,rack-a,,,MemoryPressureHigh,GPU memory utilization above threshold,true
