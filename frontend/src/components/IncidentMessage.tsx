@@ -1,7 +1,19 @@
 "use client";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useMessageContext } from "stream-chat-react";
 import { decideIncident, type IncidentAction } from "@/lib/api";
+import { StreamFilterContext, type StreamFilter } from "./StreamFilterContext";
+
+function matchesFilter(filter: StreamFilter, opts: {
+  isCisco: boolean;
+  isEscalation: boolean;
+}) {
+  if (filter === "all") return true;
+  if (filter === "agent") return !opts.isCisco && !opts.isEscalation;
+  if (filter === "cisco") return opts.isCisco;
+  if (filter === "escalations") return opts.isEscalation;
+  return true;
+}
 
 const SEV_BAR: Record<string, string> = {
   medium: "bg-[#6C7278]",
@@ -24,6 +36,11 @@ export default function IncidentMessage() {
   const verdict = d.sentinel_verdict as string | undefined;
   const escalated = d.sentinel_escalation === true;
   const isCisco = typeof incidentId === "string" && incidentId.startsWith("cisco-");
+
+  const filter = useContext(StreamFilterContext);
+  if (!matchesFilter(filter, { isCisco, isEscalation: escalated })) {
+    return null;
+  }
 
   if (!incidentId) {
     return <div className="label-caps text-[#6C7278] px-3 py-2">{message.text}</div>;
