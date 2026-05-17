@@ -286,7 +286,14 @@ def _heuristic(brief: dict[str, Any]) -> Recommendation:
     storage_timeouts = int(summary.get("storage_timeouts") or 0)
     max_temp = float(summary.get("max_temperature_c") or 0)
 
-    if critical_alerts == 0 and slo == 0 and errors == 0 and not unhealthy:
+    top_types_early = summary.get("top_alert_types") or ""
+    if (
+        critical_alerts == 0
+        and slo == 0
+        and errors == 0
+        and not unhealthy
+        and not top_types_early  # any non-critical alert type also blocks no_action
+    ):
         action = pick("no_action", "no_action")
         reason = "no_action"
         evidence = [
@@ -324,30 +331,42 @@ def _heuristic(brief: dict[str, Any]) -> Recommendation:
             f"unhealthy nodes: {unhealthy or 'none'} · congested racks: {congested or 'none'}",
         ]
     elif track == "failure_detective":
+        # Route by PRIMARY alert (highest count) so an incidental secondary
+        # alert can't hijack the decision. e.g. fail-006's primary is
+        # JobFailureCluster even though MemoryPressureHigh appears later.
         top_types = summary.get("top_alert_types") or ""
-        if "GpuXidEccError" in top_types:
+        if primary_alert == "GpuXidEccError":
             action = pick("move_job", "retry_job")
             reason = "hardware_fault"
             score = 0.85
-        elif max_temp > 85 or "NodeTemperatureHigh" in top_types:
+        elif primary_alert == "NodeTemperatureHigh" or max_temp > 85:
             action = pick("move_job", "retry_job")
             reason = "node_health"
             score = 0.82
-        elif chk_timeouts or storage_timeouts > 5 or "CheckpointWriteTimeout" in top_types:
+        elif primary_alert == "CheckpointWriteTimeout" or chk_timeouts or storage_timeouts > 5:
             action = pick("restart_from_checkpoint", "retry_job")
             reason = "checkpoint_failure"
             score = 0.82
-        elif "FabricCongestionHigh" in top_types or congested:
+        elif primary_alert == "FabricCongestionHigh" or congested:
             action = pick("move_job", "retry_job")
             reason = "fabric_congestion"
             score = 0.8
+        elif primary_alert == "MemoryPressureHigh":
+            # Memory pressure must beat a bare unhealthy-node signal:
+            # an incidentally unhealthy node does not override the primary
+            # memory-pressure cause. (fail-003)
+            action = pick("reduce_load", "retry_job")
+            reason = "memory_pressure"
+            score = 0.78
+        elif primary_alert == "JobFailureCluster":
+            # JobFailureCluster with no infra-side signals: per the runbook,
+            # escalate to the job owner. (fail-006)
+            action = pick("escalate", "retry_job")
+            reason = "no_action"
+            score = 0.72
         elif unhealthy:
             action = pick("move_job", "retry_job")
             reason = "hardware_fault"
-            score = 0.78
-        elif "MemoryPressureHigh" in top_types:
-            action = pick("reduce_load", "retry_job")
-            reason = "memory_pressure"
             score = 0.78
         elif critical_alerts == 0 and errors == 0:
             action = pick("no_action", "retry_job")
