@@ -169,16 +169,25 @@ export default function CiscoPanel({ onOpenWarroom }: CiscoPanelProps = {}) {
           )}
           {rec && !rec.error && (
             <div className="space-y-3">
-              <div className="grid grid-cols-3 gap-3">
-                <div className="p-3 border border-[#6C7278]/20 rounded-[4px]">
-                  <div className="label-caps text-[#6C7278]/70 mb-1">Action</div>
-                  <div className="font-mono text-sm font-semibold">{rec.recommended_action}</div>
+              {rec.reasoning && (
+                <div className="p-4 bg-gradient-to-br from-[#1A1C1E] to-[#2A2C2E] text-white rounded-[6px] border border-[#1A1C1E]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <span className="label-caps text-emerald-300">Sentinel's reasoning</span>
+                  </div>
+                  <p className="text-sm leading-relaxed text-[#F7F5F2]">{rec.reasoning}</p>
                 </div>
-                <div className="p-3 border border-[#6C7278]/20 rounded-[4px]">
+              )}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 border border-[#6C7278]/20 rounded-[4px] bg-white">
+                  <div className="label-caps text-[#6C7278]/70 mb-1">Action</div>
+                  <div className="font-mono text-sm font-semibold text-[#B8422E]">{rec.recommended_action}</div>
+                </div>
+                <div className="p-3 border border-[#6C7278]/20 rounded-[4px] bg-white">
                   <div className="label-caps text-[#6C7278]/70 mb-1">Reason</div>
                   <div className="font-mono text-sm">{rec.reason_category}</div>
                 </div>
-                <div className="p-3 border border-[#6C7278]/20 rounded-[4px]">
+                <div className="p-3 border border-[#6C7278]/20 rounded-[4px] bg-white">
                   <div className="label-caps text-[#6C7278]/70 mb-1">Confidence</div>
                   <div className="font-mono text-sm tabular-nums">{rec.confidence.toFixed(2)}</div>
                 </div>

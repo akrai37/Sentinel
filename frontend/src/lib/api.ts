@@ -40,6 +40,7 @@ export interface CiscoRecommendation {
   target: string;
   reason_category: string;
   confidence: number;
+  reasoning?: string;
   evidence: string[];
   used_llm: boolean;
   scenario: {

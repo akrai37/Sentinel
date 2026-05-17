@@ -49,6 +49,10 @@ return STRICT JSON with this shape:
                        storage_timeout, checkpoint_failure, priority_inversion,
                        hardware_fault, no_action>",
   "confidence": <float 0.0-1.0>,
+  "reasoning": "<ONE crisp sentence (<250 chars) that connects the signals
+                 to the action: 'X is happening, the runbook says Y, so we
+                 should Z'. Plain English, an on-call engineer would say it.
+                 Be concise. Do not truncate the action name.>",
   "evidence": [
     "<3 to 5 short evidence statements grounded in the data you were shown>"
   ]
@@ -98,6 +102,7 @@ class Recommendation:
     target: str
     reason_category: str
     confidence: float
+    reasoning: str
     evidence: list[str]
     used_llm: bool
 
@@ -108,8 +113,34 @@ class Recommendation:
             "target": self.target,
             "reason_category": self.reason_category,
             "confidence": round(self.confidence, 2),
+            "reasoning": self.reasoning,
             "evidence": self.evidence,
         }
+
+
+# Templated reasoning the heuristic emits when LLM is offline
+def _templated_reasoning(action: str, reason: str, target: str) -> str:
+    if reason == "memory_pressure":
+        return f"{target} shows sustained memory pressure; runbook says reduce batch size or lower concurrency before scaling."
+    if reason == "node_health":
+        return f"{target} is running hot or unhealthy; move work off it before placement causes hardware damage."
+    if reason == "hardware_fault":
+        return f"{target} reported GPU XID/ECC errors — local hardware fault, quarantine and move jobs."
+    if reason == "checkpoint_failure":
+        return f"Checkpoint writes are timing out against storage; restart from the most recent checkpoint once storage recovers."
+    if reason == "fabric_congestion":
+        return f"Fabric retransmits and RDMA latency are spiking on {target}; reroute traffic away from this rack."
+    if reason == "bad_rollout":
+        return f"Error rate climbed right after a serving change on {target}; roll the config back."
+    if reason == "traffic_burst":
+        return f"Demand on {target} is exceeding ready capacity; add replicas before the queue blocks more users."
+    if reason == "fragmentation":
+        return f"Idle GPUs are stranded across nodes; reserve full 8-GPU nodes so the large queued jobs can land."
+    if reason == "priority_inversion":
+        return f"High-priority jobs are waiting behind lower-priority work; reorder the queue."
+    if reason == "no_action":
+        return f"Signals are clean for {target}; no operational change required."
+    return f"Recommend {action} for {target} based on the {reason} signal pattern."
 
 
 # ---------- runbook retrieval ----------
@@ -269,6 +300,7 @@ def _heuristic(brief: dict[str, Any]) -> Recommendation:
         target=focus,
         reason_category=reason,
         confidence=score,
+        reasoning=_templated_reasoning(action, reason, focus),
         evidence=evidence,
         used_llm=False,
     )
@@ -328,17 +360,26 @@ async def _llm_recommend(brief: dict[str, Any]) -> Recommendation | None:
         valid_ids = {a["action_id"] for a in brief["actions"]}
         action = d.get("recommended_action")
         if action not in valid_ids:
-            # Fall back to heuristic but keep the LLM evidence
+            # Fall back to heuristic but keep the LLM evidence + reasoning
             heur = _heuristic(brief)
             heur.evidence = [str(e)[:240] for e in d.get("evidence", [])][:5] or heur.evidence
+            if d.get("reasoning"):
+                heur.reasoning = str(d["reasoning"])[:320]
             heur.used_llm = True
             return heur
+        target = str(d.get("target", s.get("focus_entity", "")))[:120]
+        reason = str(d.get("reason_category", "no_action"))[:48]
+        reasoning = (
+            str(d.get("reasoning"))[:320] if d.get("reasoning")
+            else _templated_reasoning(action, reason, target)
+        )
         return Recommendation(
             scenario_id=s["scenario_id"],
             recommended_action=action,
-            target=str(d.get("target", s.get("focus_entity", "")))[:120],
-            reason_category=str(d.get("reason_category", "no_action"))[:48],
+            target=target,
+            reason_category=reason,
             confidence=max(0.0, min(1.0, float(d.get("confidence", 0.6)))),
+            reasoning=reasoning,
             evidence=[str(e)[:240] for e in d.get("evidence", [])][:5],
             used_llm=True,
         )
