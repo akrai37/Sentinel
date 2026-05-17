@@ -25,6 +25,7 @@ from . import llm_classifier
 from .data.synthetic_traces import emit_demo_attack, stream_traces
 from .escalation import stream as stream_chat
 from .escalation import trtc
+from .escalation import twilio_call
 from .eval.harness import run as run_eval
 from .event_bus import bus
 from .interceptor import intercept
@@ -86,7 +87,17 @@ async def stats() -> dict:
         },
         "trtc": {"available": trtc.available()},
         "stream": {"available": stream_chat.available()},
+        "twilio": twilio_call.status(),
     }
+
+
+@app.post("/api/incidents/{incident_id}/call")
+async def call_oncall(incident_id: str) -> dict:
+    """Manually trigger a Twilio call for a given incident (demo button)."""
+    for e in bus.history():
+        if e.id == incident_id:
+            return await twilio_call.place_call(e.model_dump(mode="json"))
+    return {"placed": False, "error": "not_found"}
 
 
 @app.get("/api/stream/token")

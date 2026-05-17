@@ -17,12 +17,24 @@ export async function clearChat() {
   await fetch(`${API_BASE}/api/demo/clear_chat`, { method: "POST" });
 }
 
+export async function callOncall(incidentId: string) {
+  const r = await fetch(`${API_BASE}/api/incidents/${incidentId}/call`, {
+    method: "POST",
+  });
+  return r.json();
+}
+
 export interface Stats {
   traffic_running: boolean;
   events_seen: number;
   llm: { available: boolean; model: string; cache_size: number };
   trtc?: { available: boolean };
   stream?: { available: boolean };
+  twilio?: {
+    available: boolean;
+    from_number: string | null;
+    oncall_number: string | null;
+  };
 }
 
 export interface EvalMetrics {

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import {
+  callOncall,
   clearChat,
   fetchEval,
   fetchStats,
@@ -177,6 +178,15 @@ export default function Dashboard() {
               >
                 Join war room
               </button>
+              {stats?.twilio?.available && (
+                <button
+                  onClick={() => callOncall(latestCritical.id)}
+                  className="px-4 py-2 border border-[#B8422E] text-[#B8422E] hover:bg-[#B8422E] hover:text-white rounded-[4px] text-sm font-semibold whitespace-nowrap transition-colors"
+                  title={`Calls ${stats.twilio.oncall_number ?? "on-call"} via Twilio`}
+                >
+                  Call on-call
+                </button>
+              )}
             </div>
           </section>
         )}
@@ -319,6 +329,11 @@ export default function Dashboard() {
           />
           <StatusPill label="Stream" ok={stats?.stream?.available} />
           <StatusPill label="TRTC" ok={stats?.trtc?.available} />
+          <StatusPill
+            label="Twilio"
+            ok={stats?.twilio?.available}
+            detail={stats?.twilio?.oncall_number ?? undefined}
+          />
 
           {evalM && (
             <div className="ml-auto inline-flex items-center gap-3 px-3 py-1.5 rounded-[4px] border border-[#6C7278]/20 bg-white/70">

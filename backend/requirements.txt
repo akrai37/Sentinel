@@ -7,3 +7,4 @@ python-dotenv==1.0.1
 anthropic==0.39.0
 mcp[cli]>=1.0.0
 stream-chat>=4.0.0
+twilio>=9.0.0

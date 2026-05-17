@@ -3,6 +3,7 @@ import asyncio
 import logging
 
 from .escalation import stream as stream_chat
+from .escalation import twilio_call
 from .event_bus import bus
 from .policy import decide
 from .ranker import rank
@@ -22,4 +23,6 @@ async def intercept(call: ToolCall) -> InterceptedEvent:
     await bus.publish(event)
     if event.severity in STREAM_TIERS and stream_chat.available():
         asyncio.create_task(stream_chat.post_incident(event.model_dump(mode="json")))
+    if event.severity is Severity.CRITICAL and twilio_call.available():
+        asyncio.create_task(twilio_call.place_call(event.model_dump(mode="json")))
     return event
