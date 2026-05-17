@@ -139,6 +139,77 @@ async def evaluate_all_cisco() -> dict:
     return {"count": len(results), "results": results}
 
 
+@app.post("/api/cisco/escalate/{scenario_id}")
+async def escalate_cisco_scenario(scenario_id: str) -> dict:
+    """Page on-call: post a Cisco recommendation as an incident message in
+    the Stream channel using the same action-button card UI as agent events.
+    """
+    if not cisco_data.available():
+        return {"error": "cisco_data_unavailable"}
+    rec = await cisco_advisor.recommend(scenario_id)
+    if rec is None:
+        return {"error": "scenario_not_found", "scenario_id": scenario_id}
+    if not stream_chat.available():
+        return {"error": "stream_unavailable", "recommendation": rec}
+
+    # Re-shape the recommendation into the InterceptedEvent-ish payload our
+    # Stream IncidentMessage component already renders.
+    severity = "critical" if rec["confidence"] >= 0.85 and rec["reason_category"] != "no_action" else "high"
+    pseudo_event = {
+        "id": f"cisco-{scenario_id}",
+        "call": {
+            "agent_id": f"cisco/{rec['scenario']['track_id']}",
+            "tool_name": rec["recommended_action"],
+            "arguments": {
+                "scenario_id": scenario_id,
+                "target": rec["target"],
+                "reason": rec["reason_category"],
+                "confidence": rec["confidence"],
+            },
+            "received_at": rec["scenario"]["window"][1],
+        },
+        "assessment": {
+            "score": rec["confidence"],
+            "category": rec["reason_category"],
+            "rationale": " · ".join(rec["evidence"][:3]) if rec["evidence"] else "Cisco scenario.",
+            "matched_rules": ["cisco_advisor"],
+        },
+        "severity": severity,
+        "verdict": "pending_human",
+        "decided_at": rec["scenario"]["window"][1],
+        "escalation_channel": "stream",
+        "human_decision": "pending",
+    }
+    await stream_chat.post_incident(pseudo_event)
+    return {"ok": True, "posted_as_severity": severity, "recommendation": rec}
+
+
+@app.post("/api/cisco/warroom/{scenario_id}")
+async def warroom_cisco_scenario(scenario_id: str) -> dict:
+    """Provision a TRTC war room for a Cisco scenario. Returns the same
+    join bundle as /api/incidents/{id}/warroom so the existing WarRoom
+    modal can mount it. Includes scenario context as the 'incident'.
+    """
+    if not cisco_data.available():
+        return {"error": "cisco_data_unavailable"}
+    rec = await cisco_advisor.recommend(scenario_id)
+    if rec is None:
+        return {"error": "scenario_not_found", "scenario_id": scenario_id}
+    bundle = trtc.warroom_for_incident(f"cisco-{scenario_id}", joiner="oncall")
+    if bundle.get("error"):
+        return bundle
+    bundle["incident"] = {
+        "id": f"cisco-{scenario_id}",
+        "tool": rec["recommended_action"],
+        "agent": f"cisco/{rec['scenario']['track_id']}",
+        "category": rec["reason_category"],
+        "rationale": (rec["evidence"][0] if rec["evidence"] else "Cisco AI Factory scenario."),
+        "score": rec["confidence"],
+        "severity": "critical",
+    }
+    return bundle
+
+
 @app.post("/api/incidents/{incident_id}/call")
 async def call_oncall(incident_id: str) -> dict:
     """Manually trigger a Twilio call for a given incident (demo button)."""

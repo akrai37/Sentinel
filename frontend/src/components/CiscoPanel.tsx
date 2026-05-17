@@ -1,11 +1,21 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import {
+  escalateCiscoScenario,
   evaluateCiscoScenario,
   listCiscoScenarios,
   type CiscoRecommendation,
   type CiscoScenario,
 } from "@/lib/api";
+
+const DESTRUCTIVE_ACTIONS = new Set([
+  "move_job",
+  "restart_from_checkpoint",
+  "rollback_config",
+  "reroute_traffic",
+  "reduce_load",
+  "avoid_unhealthy_node",
+]);
 
 const TRACK_LABEL: Record<string, string> = {
   performance_advisor: "Performance Advisor",
@@ -19,12 +29,18 @@ const TRACK_COLOR: Record<string, string> = {
   failure_detective: "border-[#B8422E]/40 bg-[#FCE9E2]/40",
 };
 
-export default function CiscoPanel() {
+interface CiscoPanelProps {
+  onOpenWarroom?: (incidentId: string) => void;
+}
+
+export default function CiscoPanel({ onOpenWarroom }: CiscoPanelProps = {}) {
   const [scenarios, setScenarios] = useState<CiscoScenario[]>([]);
   const [selectedId, setSelectedId] = useState<string>("");
   const [rec, setRec] = useState<CiscoRecommendation | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const [escalated, setEscalated] = useState<string | null>(null);
+  const [escalating, setEscalating] = useState(false);
 
   useEffect(() => {
     listCiscoScenarios()
@@ -44,6 +60,7 @@ export default function CiscoPanel() {
     if (!selectedId) return;
     setLoading(true);
     setRec(null);
+    setEscalated(null);
     try {
       const r = await evaluateCiscoScenario(selectedId);
       setRec(r);
@@ -51,6 +68,26 @@ export default function CiscoPanel() {
       setLoading(false);
     }
   }
+
+  async function pageOncall() {
+    if (!selectedId) return;
+    setEscalating(true);
+    try {
+      const r = await escalateCiscoScenario(selectedId);
+      setEscalated(r?.ok ? `Posted to #incidents as ${r.posted_as_severity}` : "Failed to post");
+    } finally {
+      setEscalating(false);
+    }
+  }
+
+  function openWarroom() {
+    if (!selectedId || !onOpenWarroom) return;
+    onOpenWarroom(`cisco-${selectedId}`);
+  }
+
+  const canEscalate = !!rec && !rec.error;
+  const isDestructive = !!rec && DESTRUCTIVE_ACTIONS.has(rec.recommended_action);
+  const isHighConfidence = !!rec && rec.confidence >= 0.8;
 
   if (error) {
     return (
@@ -167,6 +204,31 @@ export default function CiscoPanel() {
                   ))}
                 </ol>
               </div>
+
+              {/* Escalation actions */}
+              {canEscalate && (
+                <div className="flex flex-wrap items-center gap-2 pt-2">
+                  <button
+                    onClick={pageOncall}
+                    disabled={escalating}
+                    className="px-3 py-2 bg-[#1A1C1E] hover:bg-[#2A2C2E] text-white rounded-[4px] text-sm font-semibold disabled:opacity-50 transition-colors"
+                  >
+                    {escalating ? "Posting…" : "📨 Page on-call (Stream)"}
+                  </button>
+                  {isDestructive && isHighConfidence && onOpenWarroom && (
+                    <button
+                      onClick={openWarroom}
+                      className="px-3 py-2 bg-[#B8422E] hover:bg-[#9e3827] text-white rounded-[4px] text-sm font-semibold transition-colors"
+                      title="Recommended action is destructive and high-confidence"
+                    >
+                      🎥 Open war room
+                    </button>
+                  )}
+                  {escalated && (
+                    <span className="text-xs text-emerald-700">✓ {escalated}</span>
+                  )}
+                </div>
+              )}
             </div>
           )}
           {rec?.error && (

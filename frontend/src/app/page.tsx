@@ -65,6 +65,26 @@ function fmtArgs(args: Record<string, unknown>) {
   return s.length > 80 ? s.slice(0, 77) + "..." : s;
 }
 
+function fmtCommandPreview(args: Record<string, unknown>): string {
+  // Show the actual scary thing if we can find it
+  const candidates = ["sql", "cmd", "command", "url", "path", "body"];
+  for (const k of candidates) {
+    const v = args[k];
+    if (typeof v === "string" && v.length > 0) {
+      return v.length > 90 ? v.slice(0, 87) + "..." : v;
+    }
+  }
+  const s = JSON.stringify(args);
+  return s.length > 90 ? s.slice(0, 87) + "..." : s;
+}
+
+function fmtTimeAgo(iso: string): string {
+  const sec = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+  if (sec < 60) return `${sec}s ago`;
+  if (sec < 3600) return `${Math.floor(sec / 60)}m ago`;
+  return `${Math.floor(sec / 3600)}h ago`;
+}
+
 function StatusPill({
   label,
   ok,
@@ -110,6 +130,18 @@ export default function Dashboard() {
     () => events.find((e) => e.severity === "critical"),
     [events]
   );
+
+  const pendingCriticals = useMemo(
+    () => events.filter((e) => e.severity === "critical").length,
+    [events]
+  );
+
+  // Re-render every 5s so "auto-blocked Xs ago" stays fresh
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 5000);
+    return () => clearInterval(t);
+  }, []);
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#F7F5F2] via-[#F4F0EA] to-[#EFE9E0] text-[#1A1C1E]">
@@ -159,39 +191,78 @@ export default function Dashboard() {
         </section>
 
         {/* Critical banner */}
-        {latestCritical && stats?.trtc?.available && (
-          <section className="mb-8 bg-gradient-to-r from-[#FCE9E2] via-white to-white border border-[#B8422E]/40 rounded-[8px] overflow-hidden flex shadow-sm shadow-[#B8422E]/10">
+        {latestCritical && (
+          <section className="mb-8 bg-gradient-to-r from-[#FCE9E2] via-white to-white border border-[#B8422E]/50 rounded-[8px] overflow-hidden flex shadow-sm shadow-[#B8422E]/10">
             <div className="w-[4px] flex-shrink-0 bg-[#B8422E]" />
-            <div className="px-5 py-4 flex items-center gap-4 flex-1">
-              <div className="flex-1">
-                <div className="label-caps text-[#B8422E] mb-1">
-                  Critical incident — auto-blocked
-                </div>
-                <div className="text-sm">
-                  <span className="text-[#6C7278]">{latestCritical.call.agent_id}</span>
-                  {" attempted "}
-                  <span className="font-semibold">{latestCritical.call.tool_name}</span>
-                  <span className="text-[#6C7278]">
-                    {" · "}{latestCritical.assessment.category}
-                    {" · score "}{latestCritical.assessment.score.toFixed(2)}
+            <div className="px-5 py-4 flex-1">
+              <div className="flex items-start justify-between gap-4 mb-2">
+                <div className="flex items-center gap-3">
+                  <span className="relative flex w-2 h-2">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-[#B8422E] opacity-75 animate-ping" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#B8422E]" />
                   </span>
+                  <span className="label-caps text-[#B8422E] font-bold">
+                    Critical incident — auto-blocked
+                  </span>
+                  <span className="text-[#6C7278]/60 text-xs">
+                    {fmtTimeAgo(latestCritical.decided_at)}
+                  </span>
+                  {pendingCriticals > 1 && (
+                    <span className="px-2 py-0.5 rounded-full bg-[#B8422E]/10 text-[#B8422E] text-[10px] font-semibold">
+                      +{pendingCriticals - 1} more critical
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {stats?.trtc?.available && (
+                    <button
+                      onClick={() => setWarroomFor(latestCritical.id)}
+                      className="px-4 py-2 bg-[#B8422E] hover:bg-[#9e3827] text-white rounded-[4px] text-sm font-semibold whitespace-nowrap transition-colors"
+                    >
+                      Join war room
+                    </button>
+                  )}
+                  {stats?.twilio?.available && (
+                    <button
+                      onClick={() => callOncall(latestCritical.id)}
+                      className="px-4 py-2 border border-[#B8422E] text-[#B8422E] hover:bg-[#B8422E] hover:text-white rounded-[4px] text-sm font-semibold whitespace-nowrap transition-colors"
+                      title={`Calls ${stats.twilio.oncall_number ?? "on-call"} via Twilio`}
+                    >
+                      Call on-call
+                    </button>
+                  )}
                 </div>
               </div>
-              <button
-                onClick={() => setWarroomFor(latestCritical.id)}
-                className="px-4 py-2 bg-[#B8422E] hover:bg-[#9e3827] text-white rounded-[4px] text-sm font-semibold whitespace-nowrap transition-colors"
-              >
-                Join war room
-              </button>
-              {stats?.twilio?.available && (
-                <button
-                  onClick={() => callOncall(latestCritical.id)}
-                  className="px-4 py-2 border border-[#B8422E] text-[#B8422E] hover:bg-[#B8422E] hover:text-white rounded-[4px] text-sm font-semibold whitespace-nowrap transition-colors"
-                  title={`Calls ${stats.twilio.oncall_number ?? "on-call"} via Twilio`}
-                >
-                  Call on-call
-                </button>
-              )}
+              <div className="text-sm">
+                <span className="text-[#6C7278]">{latestCritical.call.agent_id}</span>
+                {" attempted "}
+                <span className="font-semibold">{latestCritical.call.tool_name}</span>
+                <span className="text-[#6C7278]">
+                  {" · "}{latestCritical.assessment.category}
+                  {" · score "}{latestCritical.assessment.score.toFixed(2)}
+                </span>
+              </div>
+              <code className="block mt-2 px-3 py-2 bg-[#1A1C1E] text-[#FCE9E2] text-xs rounded-[4px] font-mono break-all">
+                {fmtCommandPreview(latestCritical.call.arguments)}
+              </code>
+              <div className="flex flex-wrap items-center gap-2 mt-3 text-[11px]">
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 border border-emerald-500/30">
+                  ✓ Auto-blocked
+                </span>
+                {stats?.stream?.available && (
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 border border-emerald-500/30">
+                    ✓ Posted to #incidents
+                  </span>
+                )}
+                {stats?.trtc?.available && (
+                  <span className="px-2 py-0.5 rounded-full bg-[#6C7278]/10 text-[#6C7278] border border-[#6C7278]/25">
+                    War room ready
+                  </span>
+                )}
+                <span className="px-2 py-0.5 rounded-full bg-[#6C7278]/10 text-[#6C7278] border border-[#6C7278]/25 font-mono">
+                  {latestCritical.id}
+                </span>
+              </div>
             </div>
           </section>
         )}
@@ -344,7 +415,7 @@ export default function Dashboard() {
               </span>
             </div>
             <section className="mb-8">
-              <CiscoPanel />
+              <CiscoPanel onOpenWarroom={(id) => setWarroomFor(id)} />
             </section>
           </>
         )}

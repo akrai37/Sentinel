@@ -61,6 +61,18 @@ export async function evaluateCiscoScenario(id: string): Promise<CiscoRecommenda
   return r.json();
 }
 
+export async function escalateCiscoScenario(id: string) {
+  const r = await fetch(`${API_BASE}/api/cisco/escalate/${id}`, { method: "POST" });
+  return r.json();
+}
+
+export interface CiscoWarroomBundle extends WarroomBundle {}
+
+export async function openCiscoWarroom(id: string): Promise<CiscoWarroomBundle> {
+  const r = await fetch(`${API_BASE}/api/cisco/warroom/${id}`, { method: "POST" });
+  return r.json();
+}
+
 export interface Stats {
   traffic_running: boolean;
   events_seen: number;
@@ -113,9 +125,11 @@ export interface WarroomBundle {
 }
 
 export async function openWarroom(incidentId: string): Promise<WarroomBundle> {
-  const r = await fetch(`${API_BASE}/api/incidents/${incidentId}/warroom`, {
-    method: "POST",
-  });
+  // Cisco scenarios share the same WarRoom modal; route by id prefix.
+  const path = incidentId.startsWith("cisco-")
+    ? `/api/cisco/warroom/${incidentId.replace(/^cisco-/, "")}`
+    : `/api/incidents/${incidentId}/warroom`;
+  const r = await fetch(`${API_BASE}${path}`, { method: "POST" });
   return r.json();
 }
 

@@ -60,7 +60,35 @@ Rules:
   message, or runbook line that was provided. Do not invent fields.
 - Prefer no_action only when signals are clean (no alerts, no SLO breach,
   no unhealthy nodes).
-- Output ONLY the JSON. No prose, no markdown."""
+- Output ONLY the JSON. No prose, no markdown.
+
+For the failure_detective track, follow this priority order:
+  1. GpuXidEccError alerts -> move_job, reason=hardware_fault, target=the
+     affected node. Cite ECC error count and node id.
+  2. NodeTemperatureHigh (>85C) or max_temperature_c > 85 -> move_job,
+     reason=node_health, target=the hot node. Cite the temperature and power.
+  3. CheckpointWriteTimeout or storage_timeouts > 5 ->
+     restart_from_checkpoint, reason=checkpoint_failure,
+     target=checkpoint-store. Cite the timeout count.
+  4. FabricCongestionHigh -> move_job, reason=fabric_congestion,
+     target=the affected rack. Cite the congested rack id and alert count.
+  5. MemoryPressureHigh without hardware fault -> reduce_load,
+     reason=memory_pressure, target=the affected model or service.
+  6. JobFailureCluster with no infra-side alerts -> escalate, reason=no_action,
+     target=the failing job ids.
+
+For the performance_advisor track, key cues:
+  - RolloutErrorRateHigh after a serving change -> rollback_config.
+  - FabricCongestionHigh on a specific rack -> reroute_traffic.
+  - NodeTemperatureHigh on the focus node -> reroute_traffic.
+  - ReplicaErrorRateHigh (mostly 429s) -> add_capacity or reduce_load.
+  - MemoryPressureHigh with high KV cache pressure -> reduce_load.
+
+For the gpu_placement track, key cues:
+  - High max_stranded_gpus + large_jobs_in_window > 0 -> reserve_full_node.
+  - high_priority_jobs_in_window > 0 with queue wait -> prioritize_urgent_jobs.
+  - unhealthy_nodes set or max_temperature_c > 85 -> avoid_unhealthy_node.
+  - No large/high-priority pressure, idle slots -> backfill_small_jobs."""
 
 
 @dataclass
@@ -167,18 +195,31 @@ def _heuristic(brief: dict[str, Any]) -> Recommendation:
             f"unhealthy nodes: {unhealthy or 'none'} · congested racks: {congested or 'none'}",
         ]
     elif track == "failure_detective":
-        if chk_timeouts or storage_timeouts:
+        top_types = summary.get("top_alert_types") or ""
+        if "GpuXidEccError" in top_types:
+            action = pick("move_job", "retry_job")
+            reason = "hardware_fault"
+            score = 0.85
+        elif max_temp > 85 or "NodeTemperatureHigh" in top_types:
+            action = pick("move_job", "retry_job")
+            reason = "node_health"
+            score = 0.82
+        elif chk_timeouts or storage_timeouts > 5 or "CheckpointWriteTimeout" in top_types:
             action = pick("restart_from_checkpoint", "retry_job")
             reason = "checkpoint_failure"
             score = 0.82
-        elif unhealthy or "GpuXidEccError" in (summary.get("top_alert_types") or ""):
+        elif "FabricCongestionHigh" in top_types or congested:
+            action = pick("move_job", "retry_job")
+            reason = "fabric_congestion"
+            score = 0.8
+        elif unhealthy:
             action = pick("move_job", "retry_job")
             reason = "hardware_fault"
-            score = 0.8
-        elif primary_alert == "MemoryPressureHigh":
+            score = 0.78
+        elif "MemoryPressureHigh" in top_types:
             action = pick("reduce_load", "retry_job")
             reason = "memory_pressure"
-            score = 0.75
+            score = 0.78
         elif critical_alerts == 0 and errors == 0:
             action = pick("no_action", "retry_job")
             reason = "no_action"
@@ -188,9 +229,9 @@ def _heuristic(brief: dict[str, Any]) -> Recommendation:
             reason = "no_action"
             score = 0.55
         evidence = [
-            f"primary alert {primary_alert or 'none'} ({critical_alerts} critical alerts)",
-            f"checkpoint_timeouts={chk_timeouts}, storage_timeouts={storage_timeouts}",
-            f"unhealthy nodes: {unhealthy or 'none'}",
+            f"primary alert {primary_alert or 'none'} ({critical_alerts} critical alerts, top types: {top_types or 'none'})",
+            f"checkpoint_timeouts={chk_timeouts}, storage_timeouts={storage_timeouts}, max_temp={max_temp}C",
+            f"unhealthy nodes: {unhealthy or 'none'} · congested racks: {congested or 'none'}",
         ]
     elif track == "gpu_placement":
         large = int(summary.get("large_jobs_in_window") or 0)

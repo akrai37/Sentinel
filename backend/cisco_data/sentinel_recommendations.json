@@ -1,15 +1,15 @@
 [
   {
     "scenario_id": "perf-001",
-    "recommended_action": "rollback_config",
+    "recommended_action": "reduce_load",
     "target": "chat-mid-34b",
-    "reason_category": "bad_rollout",
-    "confidence": 0.85,
+    "reason_category": "memory_pressure",
+    "confidence": 0.92,
     "evidence": [
-      "6 critical MemoryPressureHigh alerts triggered between 10:07Z and 11:42Z, all referencing elevated KV cache pressure on chat-mid-34b following a serving change",
-      "p95 latency spiked to 59027ms with 47 SLO violations and 120 max queued requests, indicating severe performance degradation correlated with the serving change",
-      "8 inference errors occurred during the window, paired with persistent queue backlog and memory pressure logs across inference-gateway service",
-      "Runbook for MemoryPressureHigh recommends reducing batch size or shifting traffic, but the timing and pattern suggest the serving change itself introduced an unfavorable configuration that increased memory demand"
+      "6 critical MemoryPressureHigh alerts across the 105-minute window, all citing elevated KV cache pressure on chat-mid-34b",
+      "p95 latency spiked to 59027 ms with 120 max queued requests, indicating queue buildup from memory saturation",
+      "8 inference errors and 47 SLO violations correlate with persistent KV cache pressure logged in inference-gateway",
+      "Runbook for MemoryPressureHigh recommends reducing batch size, lowering concurrency, or shifting traffic as first mitigations"
     ]
   },
   {
@@ -19,11 +19,10 @@
     "reason_category": "traffic_burst",
     "confidence": 0.92,
     "evidence": [
-      "177 requests in one hour with max_queued_requests of 132 indicates demand exceeding ready capacity",
-      "22 errors and 77 SLO violations driven by ReplicaErrorRateHigh alerts (5 occurrences) consistently reporting 429s during traffic burst",
-      "P95 latency of 19767ms and repeated inference-gateway logs at 18:03, 18:25, 18:42, and 19:00 confirming sustained 429 rate limiting throughout the window",
-      "Runbook guidance states '429s usually indicate demand exceeding ready capacity or concurrency limits' and no rollout or 5xx errors present to suggest bad configuration",
-      "Temperature and power metrics (max 57.8\u00b0C, 4764W) show healthy hardware; issue is capacity, not fault"
+      "ReplicaErrorRateHigh alert fired 5 times across the window with 429 status codes indicating demand exceeding ready capacity",
+      "max_queued_requests reached 132 during the burst, showing significant queueing behind insufficient replica capacity",
+      "22 error_count and 77 SLO_violation_count in a 1-hour window with p95_latency_ms of 19767ms confirm saturation under elevated load",
+      "Runbook states '429s usually indicate demand exceeding ready capacity or concurrency limits', matching observed pattern with no rollout or configuration change logs"
     ]
   },
   {
@@ -31,13 +30,13 @@
     "recommended_action": "reroute_traffic",
     "target": "rack-c",
     "reason_category": "fabric_congestion",
-    "confidence": 0.92,
+    "confidence": 0.95,
     "evidence": [
-      "6 critical FabricCongestionHigh alerts triggered between 09:34Z and 10:40Z, all specifically citing rack-c RDMA latency and retransmits above threshold",
-      "P95 latency reached 44977 ms with 38 SLO violations during the 75-minute window, directly correlated with fabric congestion onset",
-      "7 ai-fabric service logs between 09:36Z and 10:31Z consistently reported elevated RDMA latency and retransmits in rack-c",
-      "Runbook for FabricCongestionHigh explicitly recommends: 'move or reroute work away from the affected rack' when congestion is localized",
-      "19 queued requests accumulated (max_queued_requests), indicating traffic backup due to fabric bottleneck rather than compute capacity shortage"
+      "FabricCongestionHigh alert fired 6 times between 09:34Z and 10:40Z, all citing rack-c RDMA latency and retransmits above threshold",
+      "p95_latency_ms reached 44977ms with 38 SLO violations during the window, correlated with fabric congestion onset",
+      "ai-fabric logs repeatedly report 'RDMA latency and retransmits elevated in rack-c' across 7 log entries spanning the incident window",
+      "max_queued_requests peaked at 19, indicating traffic buildup due to fabric backpressure rather than capacity shortage",
+      "Hardware health is nominal (max_temperature_c 65.3\u00b0C, max_power_watts 6017W), ruling out node-level failure; congestion is localized to rack-c fabric segment"
     ]
   },
   {
@@ -47,25 +46,24 @@
     "reason_category": "bad_rollout",
     "confidence": 0.95,
     "evidence": [
-      "6 critical RolloutErrorRateHigh alerts raised between 13:19 and 14:25, all correlating with config_version=v2026.04.09-rc deployment",
-      "Logs show repeated 'tokenizer checksum mismatch for code-assist-15b' errors (8 occurrences) exclusively after rollout, starting at 13:16:00Z",
-      "Error count of 25 out of 172 requests (14.5% error rate) with 48 SLO violations in a 75-minute window following rollout initiation",
-      "p95 latency spike to 41,957ms and max queued requests reaching 21, consistent with downstream impact of tokenizer misconfiguration",
-      "Temporal alignment: first checksum mismatch log at 13:16:00Z, first RolloutErrorRateHigh alert at 13:19:00Z"
+      "6 critical RolloutErrorRateHigh alerts triggered between 13:19\u201314:25 UTC, all referencing code-assist-15b 5xx rate increase after config rollout",
+      "Inference gateway logs show repeated 'tokenizer checksum mismatch for code-assist-15b' with config_version=v2026.04.09-rc across 5 timestamps (13:16, 13:38, 13:47, 14:02, 14:15, 14:30 UTC)",
+      "Error count of 25 out of 172 requests (14.5% error rate) with 48 SLO violations during the window correlates precisely with rollout timestamp",
+      "p95 latency spike to 41,957 ms and max queued requests of 21 indicate cascading failures tied to the bad configuration"
     ]
   },
   {
     "scenario_id": "perf-005",
     "recommended_action": "reroute_traffic",
     "target": "gpu-node-02",
-    "reason_category": "hardware_fault",
-    "confidence": 0.92,
+    "reason_category": "node_health",
+    "confidence": 0.95,
     "evidence": [
-      "gpu-node-02 temperature reached 91.8\u00b0C and power reached 7278W, both critically elevated, with 4 NodeTemperatureHigh critical alerts between 09:17 and 10:17.",
-      "Node is marked unhealthy (unhealthy_nodes: gpu-node-02) while still receiving user-facing requests (105 requests, p95_latency_ms: 44225).",
-      "20 SLO violations and 3 errors during the window indicate degraded serving performance on the affected node due to thermal stress.",
-      "Runbook guidance for NodeTemperatureHigh explicitly states: 'Avoid new placements, move active jobs when needed, and reroute serving traffic away from the node.'",
-      "Queue depth is elevated (max_queued_requests: 16) and thermal alerts recur persistently across the 75-minute window, indicating sustained thermal pressure rather than transient load."
+      "NodeTemperatureHigh alert fired 4 times between 09:17Z and 10:17Z; max_temperature_c = 91.8\u00b0C exceeds safe threshold of 85\u00b0C.",
+      "max_power_watts = 7278W indicates sustained high thermal load on gpu-node-02 during the 75-minute window.",
+      "gpu-node-02 is marked unhealthy in unhealthy_nodes set, yet 105 inference requests continue landing there with p95_latency_ms = 44225ms and 20 SLO violations.",
+      "Runbook NodeTemperatureHigh explicitly directs: 'reroute serving traffic away from the node' when temperature and power are elevated.",
+      "6 gpu-node-health logs confirm persistent temperature and power alerts across the entire window with no resolution."
     ]
   },
   {
@@ -75,25 +73,25 @@
     "reason_category": "no_action",
     "confidence": 0.92,
     "evidence": [
-      "Critical alerts count is 0, indicating no critical infrastructure issues detected during the window.",
-      "Error count is 0 across all services, showing healthy request processing with no failures.",
-      "P95 latency of 28043ms is elevated but consistent with normal operating parameters; no SLO breach pattern indicated by the scenario description.",
-      "Max temperature (62.3\u00b0C) and max power (5591W) are within typical operational ranges for the cluster.",
-      "5 SLO violations over the 1-hour window represent minor transient events without critical alert escalation, suggesting normal variance rather than actionable degradation."
+      "Critical alerts count is 0, with no critical_alerts in the alert sample.",
+      "Error count is 0 across the 89 inference requests in the window.",
+      "Max temperature is 62.3\u00b0C, well below the 85\u00b0C threshold for node health concerns.",
+      "Max power consumption is 5591 watts, within normal operating parameters.",
+      "SLO violations (5 total) are minimal relative to request volume and do not indicate systemic failure or resource contention requiring immediate action."
     ]
   },
   {
     "scenario_id": "gpu-001",
     "recommended_action": "reserve_full_node",
     "target": "8-gpu-and-16-gpu-jobs",
-    "reason_category": "fragmentation",
-    "confidence": 0.95,
+    "reason_category": "no_action",
+    "confidence": 0.92,
     "evidence": [
-      "QueueDepthHigh alert raised 8 times between 14:08 and 15:58 with message 'large GPU jobs waiting while nodes are partially occupied'",
-      "Training-scheduler logs confirm '8-GPU and 16-GPU jobs waiting behind small jobs' repeated 6 times across the 2-hour window",
-      "13 large jobs in window with avg queue wait of 75.7 min and p95 queue wait of 230 min indicate significant scheduling delays",
-      "Max stranded GPUs observed at 5, showing partial node occupancy preventing large job placement",
-      "Runbook guidance states 'Large jobs need full 8-GPU nodes' and 'Small jobs are useful backfill only when they do not block larger jobs'"
+      "13 large jobs waiting in window with avg queue wait of 75.7 minutes and p95 of 230 minutes",
+      "8 QueueDepthHigh alerts between 14:08 and 15:58 all citing 'large GPU jobs waiting while nodes are partially occupied'",
+      "Training scheduler logs consistently report '8-GPU and 16-GPU jobs waiting behind small jobs' across 6 timestamps",
+      "Max stranded GPUs at 5 units indicates partial node occupation preventing full 8-GPU and 16-GPU job placement",
+      "No hardware faults (0 critical alerts), temperature at 56.1\u00b0C, power at 4717W\u2014infra is healthy; scheduling policy is the issue"
     ]
   },
   {
@@ -101,13 +99,13 @@
     "recommended_action": "backfill_small_jobs",
     "target": "idle-gpu-slots",
     "reason_category": "no_action",
-    "confidence": 0.85,
+    "confidence": 0.92,
     "evidence": [
-      "Zero large jobs in queue during window (large_jobs_in_window: 0) and zero high-priority jobs (high_priority_jobs_in_window: 0) indicate no blocking constraints.",
-      "Zero stranded GPUs (max_stranded_gpus: 0) and zero critical alerts confirm cluster health and availability.",
-      "Average queue wait of 32.3 minutes with p95 of 58 minutes suggests moderate queue pressure that small-job backfill can help reduce.",
-      "Thermal and power metrics (max 58.3\u00b0C, max 4983W) are well within safe operating ranges, enabling continued workload placement.",
-      "Idle GPU slots with healthy cluster state and no large-job pressure is the canonical scenario for safe backfill scheduling."
+      "max_stranded_gpus is 0, indicating no fragmentation pressure",
+      "large_jobs_in_window is 0 and high_priority_jobs_in_window is 0, no blocking workloads",
+      "max_temperature_c is 58.3\u00b0C (well below 85\u00b0C threshold) and max_power_watts is 4983W, indicating healthy node conditions",
+      "critical_alerts count is 0, no infrastructure issues detected",
+      "idle GPU slots present with no competing large or urgent job demand"
     ]
   },
   {
@@ -115,27 +113,27 @@
     "recommended_action": "prioritize_urgent_jobs",
     "target": "high-priority-jobs",
     "reason_category": "priority_inversion",
-    "confidence": 0.92,
+    "confidence": 0.95,
     "evidence": [
-      "PriorityWaitHigh alert fired 5 times across the window (15:07, 15:34, 15:41, 16:00, 16:20), indicating persistent priority inversion",
-      "High-priority evaluation jobs waiting behind lower-priority work confirmed in 7 training-scheduler log entries between 15:05 and 16:20",
-      "Average queue wait of 101.5 minutes with p95 at 144 minutes indicates significant scheduling delays for high-priority jobs",
-      "10 high-priority jobs in window with no stranded GPUs (max_stranded_gpus=0) suggests capacity exists but is occupied by lower-priority work",
-      "Runbook guidance explicitly states high-priority jobs should be moved forward in the schedule"
+      "10 high-priority jobs in window with average queue wait of 101.5 minutes and p95 wait of 144 minutes",
+      "5 PriorityWaitHigh alerts triggered between 15:07 and 16:20, all indicating high-priority jobs blocked behind lower-priority work",
+      "training-scheduler logs repeatedly confirm high-priority evaluation jobs waiting (7 occurrences across the window)",
+      "0 critical alerts and max_temperature_c=60.6\u00b0C indicate healthy infrastructure capacity, enabling priority reordering",
+      "1 large job in window but 0 stranded GPUs shows capacity exists for scheduling high-priority work ahead"
     ]
   },
   {
     "scenario_id": "gpu-004",
     "recommended_action": "avoid_unhealthy_node",
     "target": "gpu-node-02",
-    "reason_category": "hardware_fault",
+    "reason_category": "node_health",
     "confidence": 0.95,
     "evidence": [
-      "gpu-node-02 temperature reached 91.8\u00b0C and power consumption 7278W, both above normal range per 4 critical NodeTemperatureHigh alerts between 09:17 and 10:17",
-      "Node marked as unhealthy in signal summary with persistent temperature and power alerts logged 6 times across the window (09:20 to 10:28)",
-      "Average queue wait time of 61.0 minutes with p95 at 76 minutes indicates jobs are backing up; routing new work away from this node will reduce thermal load and improve overall placement efficiency",
-      "Runbook guidance states 'Avoid new placements' and 'reroute serving traffic away from the node' when temperature and power alerts persist",
-      "1 high-priority job and 1 large job are in queue; avoid_unhealthy_node prevents these from exacerbating thermal stress on gpu-node-02"
+      "gpu-node-02 max_temperature_c is 91.8\u00b0C, exceeding safe operating threshold of 85\u00b0C",
+      "gpu-node-02 max_power_watts is 7278W, indicating sustained high-load thermal stress near power limit",
+      "4 critical NodeTemperatureHigh alerts fired between 09:17Z and 10:17Z on gpu-node-02, confirmed by 6 gpu-node-health logs reporting temperature and power alerts",
+      "gpu-node-02 is marked unhealthy in the signal summary, triggering the gpu_placement track rule to avoid unhealthy nodes",
+      "1 high-priority job and 1 large job are waiting in queue (avg_queue_wait_min 61.0, p95 76 min), but should not be placed on the thermally constrained node per runbook guidance"
     ]
   },
   {
@@ -143,27 +141,27 @@
     "recommended_action": "reserve_full_node",
     "target": "32-gpu-training-jobs",
     "reason_category": "fragmentation",
-    "confidence": 0.94,
+    "confidence": 0.92,
     "evidence": [
-      "8 MultiNodePlacementBlocked alerts over 2-hour window (10:02 to 12:00) indicate persistent inability to place 32-GPU jobs",
-      "Average queue wait of 173.9 minutes with p95 of 242 minutes shows severe scheduling delays for large jobs",
-      "Training-scheduler logs state '32-GPU jobs waiting while capacity is scattered' across 8 log entries, confirming GPU fragmentation prevents multi-node job placement",
-      "Runbook for MultiNodePlacementBlocked explicitly notes 'scattered free GPUs can look like idle capacity but still fail to admit a multi-node job'",
-      "Max stranded GPUs metric of 6 indicates nodes have partial capacity unavailable for contiguous multi-node allocation"
+      "MultiNodePlacementBlocked alert fired 8 times across the 2-hour window (10:02Z through 12:00Z), indicating persistent inability to place 32-GPU jobs.",
+      "max_stranded_gpus = 6 with large_jobs_in_window = 9, confirming capacity is fragmented across partially used nodes rather than consolidated.",
+      "avg_queue_wait_min = 173.9 and p95_queue_wait_min = 242 show severe queueing delay for multi-node jobs waiting for full-node availability.",
+      "Runbook states: 'Scattered free GPUs can look like idle capacity but still fail to admit a multi-node job,' directly matching the observed pattern.",
+      "No hardware faults (critical_alerts = 0, max_temperature_c = 65.8, max_power_watts = 6245 all healthy), so the problem is placement fragmentation, not node health."
     ]
   },
   {
     "scenario_id": "gpu-006",
-    "recommended_action": "no_action",
+    "recommended_action": "backfill_small_jobs",
     "target": "normal-training-queue",
     "reason_category": "no_action",
     "confidence": 0.95,
     "evidence": [
-      "Queue wait time p95 is 0 minutes, indicating no job backlog or scheduling pressure.",
-      "Zero critical alerts in the window and no unhealthy nodes reported.",
-      "Maximum temperature 62.3\u00b0C and power 5591W are within normal operating ranges for GPU infrastructure.",
-      "Zero high-priority jobs blocked and zero large jobs in window requiring special placement strategies.",
-      "Zero stranded GPUs indicates efficient resource utilization with no fragmentation issues."
+      "max_stranded_gpus is 0, indicating no idle GPU slots are accumulating",
+      "high_priority_jobs_in_window is 0, so no urgent jobs are blocked or waiting",
+      "large_jobs_in_window is 0, meaning no multi-node jobs require reserved capacity",
+      "p95_queue_wait_min is 0, confirming queue is flowing smoothly with no backlog",
+      "max_temperature_c is 62.3\u00b0C and max_power_watts is 5591, both well within normal operating ranges with no thermal or power stress"
     ]
   },
   {
@@ -171,26 +169,27 @@
     "recommended_action": "restart_from_checkpoint",
     "target": "checkpoint-storage",
     "reason_category": "checkpoint_failure",
-    "confidence": 0.92,
+    "confidence": 0.95,
     "evidence": [
-      "7 critical CheckpointWriteTimeout alerts between 02:03:00Z and 03:43:00Z with message 'checkpoint write latency causing training failures'",
-      "106 storage timeouts recorded during the 2-hour window, indicating persistent storage I/O congestion",
-      "Multiple training jobs failed with exit_reason=checkpoint_write_timeout at 02:14:00Z, 03:01:00Z, and 03:30:00Z",
-      "Checkpoint-storage service logs show repeated 300-second timeout events at 02:03:00Z, 02:16:00Z, 02:40:00Z, 03:05:00Z, and 03:15:00Z with retry scheduling",
-      "Runbook guidance explicitly states: 'Restart from the most recent checkpoint after the storage path recovers'"
+      "7 critical CheckpointWriteTimeout alerts spanning 2026-04-06T02:03:00Z to 2026-04-06T03:43:00Z, directly matching top_alert_types count",
+      "106 storage_timeouts recorded during the 2-hour window, indicating sustained I/O latency in checkpoint-storage service",
+      "Logs show repeated pattern: 'checkpoint write timed out after 300s; retry scheduled' at 2026-04-06T02:03:00Z, 02:16:00Z, 02:40:00Z, 03:05:00Z, 03:15:00Z",
+      "Multiple training jobs failed with exit_reason=checkpoint_write_timeout (at 02:14:00Z, 03:01:00Z, 03:30:00Z), directly correlating checkpoint failures to job loss",
+      "No hardware faults (max_temperature_c=56.5, max_power_watts=4651 are nominal), no fabric congestion alerts; issue is storage-side per runbook guidance"
     ]
   },
   {
     "scenario_id": "fail-002",
     "recommended_action": "move_job",
     "target": "gpu-node-02",
-    "reason_category": "hardware_fault",
-    "confidence": 0.92,
+    "reason_category": "node_health",
+    "confidence": 0.95,
     "evidence": [
-      "gpu-node-02 temperature reached 91.8\u00b0C and power consumption peaked at 7278W, both well above normal operating range",
-      "4 critical NodeTemperatureHigh alerts fired between 09:17:00Z and 10:17:00Z, with repeated gpu-node-health service messages confirming thermal stress",
-      "Runbook for NodeTemperatureHigh explicitly recommends: avoid new placements, move active jobs when needed, and reroute traffic away from the node",
-      "Node marked as unhealthy in signal summary, indicating sustained degradation during the 75-minute observation window"
+      "NodeTemperatureHigh alert fired 4 times between 09:17 and 10:17, with max_temperature_c of 91.8\u00b0C exceeding the 85\u00b0C threshold.",
+      "max_power_watts of 7278W indicates sustained high power consumption on gpu-node-02, corroborating thermal stress.",
+      "gpu-node-02 is marked as unhealthy in the signal summary, confirming node-health issue.",
+      "gpu-node-health service logged temperature and power alerts 6 times across the window, establishing persistent thermal condition.",
+      "Runbook for NodeTemperatureHigh recommends moving active jobs away from the node when temperature is elevated."
     ]
   },
   {
@@ -200,11 +199,11 @@
     "reason_category": "memory_pressure",
     "confidence": 0.92,
     "evidence": [
-      "6 critical MemoryPressureHigh alerts fired between 10:07Z and 11:42Z, each citing 'latency and KV cache pressure elevated'",
-      "8 inference-gateway log entries spanning 10:09Z to 11:40Z report 'p95 latency spike and high KV cache pressure', indicating sustained KV cache exhaustion",
-      "Runbook for MemoryPressureHigh explicitly recommends 'reducing batch size, lowering concurrency, or shifting traffic to healthier replicas' as first mitigation",
-      "Scenario prompt confirms 'batch setting change' preceded the alerts, suggesting over-sized batch is the root cause",
-      "gpu-node-03 marked unhealthy with power at 6499W and temperature at 66.9\u00b0C, consistent with memory-induced thermal load"
+      "6 critical MemoryPressureHigh alerts on chat-mid-34b between 10:07 and 11:42, citing elevated latency and KV cache pressure",
+      "8 inference-gateway log entries reporting p95 latency spikes correlated with high KV cache pressure throughout the window",
+      "Runbook guidance for MemoryPressureHigh recommends reducing batch size, lowering concurrency, or shifting traffic as first mitigation",
+      "No hardware faults detected (gpu-node-03 unhealthy but unrelated; max_temperature_c 66.9\u00b0C, max_power_watts 6499 within normal range)",
+      "Prompt indicates batch setting change preceded alerts, suggesting load configuration change triggered memory/cache saturation"
     ]
   },
   {
@@ -214,11 +213,11 @@
     "reason_category": "fabric_congestion",
     "confidence": 0.92,
     "evidence": [
-      "6 critical FabricCongestionHigh alerts in rack-c between 09:34Z and 10:40Z reporting elevated RDMA latency and retransmits",
-      "ai-fabric service logs confirm 'RDMA latency and retransmits elevated in rack-c' repeatedly at 09:36Z, 09:52Z, 10:02Z, 10:11Z, and 10:31Z",
-      "Runbook FabricCongestionHigh recommends: 'If fabric congestion is localized, move or reroute work away from the affected rack'",
-      "1 MemoryPressureHigh warning at 10:13Z co-occurs with fabric congestion, but no checkpoint or storage timeouts reported, indicating transient rather than persistent resource failure",
-      "Localized congestion pattern (only rack-c affected) supports workload migration rather than global recovery or load reduction"
+      "FabricCongestionHigh alert fired 6 times across the window (09:34, 09:48, 10:09, 10:16, 10:36, 10:40 UTC), all citing rack-c RDMA latency and retransmits above threshold",
+      "ai-fabric service logs consistently report 'RDMA latency and retransmits elevated in rack-c' at 09:36, 09:52, 10:02, 10:11, and 10:31 UTC",
+      "congested_racks field explicitly names rack-c as the affected infrastructure element",
+      "Temperature (65.3\u00b0C) and power (6017W) remain nominal, ruling out thermal or power-induced failures",
+      "Checkpoint and storage systems show 0 timeouts and passing health checks, confirming no storage-layer contribution to congestion"
     ]
   },
   {
@@ -226,13 +225,12 @@
     "recommended_action": "move_job",
     "target": "gpu-node-09",
     "reason_category": "hardware_fault",
-    "confidence": 0.98,
+    "confidence": 0.99,
     "evidence": [
-      "5 critical GpuXidEccError alerts between 20:07 and 20:57 UTC on gpu-node-09",
-      "Log entries confirm 'gpu xid 79/ecc double-bit error observed; mark node unhealthy' at 20:07, 20:17, 20:20, 20:45, 20:58, and 21:15 UTC",
-      "Training job failed with exit_reason=gpu_xid_ecc_error at 20:13 UTC",
-      "Runbook explicitly directs: 'Move affected jobs away from the node and quarantine it from new placements until inspected'",
-      "Node gpu-node-09 is listed in unhealthy_nodes; hardware fault pattern is persistent, not transient"
+      "5 critical GpuXidEccError alerts spanning 2026-04-11T20:07:00Z to 2026-04-11T20:57:00Z on gpu-node-09",
+      "8 log entries confirming 'gpu xid 79/ecc double-bit error' on gpu-node-09, marking node unhealthy",
+      "Job failure with exit_reason=gpu_xid_ecc_error at 2026-04-11T20:13:00Z corroborates GPU hardware fault",
+      "Runbook directive: 'Move affected jobs away from the node and quarantine it from new placements until inspected'"
     ]
   },
   {
@@ -240,12 +238,13 @@
     "recommended_action": "escalate",
     "target": "training-job-failure",
     "reason_category": "no_action",
-    "confidence": 0.85,
+    "confidence": 0.92,
     "evidence": [
-      "Three JobFailureCluster alerts (13:05, 13:23, 13:45) with no matching infrastructure anomalies: 0 checkpoint timeouts, 0 storage timeouts, 0 critical alerts",
-      "Five training-job logs explicitly state 'python traceback in user training step; no matching node or storage anomaly' and exit_reason=user_code_error",
-      "Single MemoryPressureHigh alert at 13:04 is isolated and does not correlate with the job failures; infrastructure temperatures (64.3\u00b0C) and power (5733W) are nominal",
-      "Runbook guidance for JobFailureCluster: 'avoid overreacting' and 'escalate to the job owner with logs and failed job IDs' when no infrastructure pattern matches"
+      "JobFailureCluster alerts (3 occurrences at 13:05, 13:23, 13:45) explicitly state 'several jobs failed without matching infrastructure alerts'",
+      "Log messages consistently show 'python traceback in user training step; no matching node or storage anomaly' and 'exit_reason=user_code_error', indicating application-level failures",
+      "Infrastructure health is nominal: max_temperature_c=64.3 (well below 85C threshold), no CheckpointWriteTimeout events, storage_timeouts=0, critical_alerts=0",
+      "Single MemoryPressureHigh alert (1 occurrence) is insufficient pattern to warrant load reduction when job failures are explicitly user-code related",
+      "Runbook guidance states: 'When a few jobs fail without matching node, storage, network, or service-wide signals, avoid overreacting. Escalate to the job owner with logs and failed job IDs.'"
     ]
   }
 ]
