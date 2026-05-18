@@ -11,11 +11,7 @@ Sentinel watches two failure modes with the same reasoning engine: AI agents on 
 
 ## Demo
 
-[![Sentinel dashboard](assets/sentinel-ui.jpeg)](assets/sentinel-demo.mp4)
-
-▶️ **[Watch the full demo video](assets/sentinel-demo.mp4)** &nbsp;·&nbsp; 📄 **[Read the Devpost write-up](https://devpost.com/software/sentinel-uheo94)**
-
-*Click the screenshot above to play the demo, or browse [`assets/`](assets/) for the raw files.*
+▶️ **[Watch the demo video](assets/sentinel-demo.mp4)** &nbsp;·&nbsp; 📄 **[Read the Devpost write-up](https://devpost.com/software/sentinel-uheo94)**
 
 ---
 
@@ -295,4 +291,3 @@ Built at Hack-A-Stack 2026, Santa Clara University. Awarded **Best Use of VoiceO
 
 - 📄 [Devpost](https://devpost.com/software/sentinel-uheo94)
 - 🎥 [Demo video](assets/sentinel-demo.mp4)
-- 🖼️ [Screenshot](assets/sentinel-ui.jpeg)
