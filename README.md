@@ -2,9 +2,20 @@
 
 **Runtime firewall for AI agents. Operations layer for the AI Factory.**
 
+> 🏆 **Winner — Best Use of VoiceOS & Hypescribe** at Hack-A-Stack 2026 (Santa Clara University, Endurance Track).
+> 📄 [Devpost submission](https://devpost.com/software/sentinel-uheo94)
+
 Sentinel watches two failure modes with the same reasoning engine: AI agents on top of infrastructure, and the GPU infrastructure underneath them. Both fail in new ways, and both need the same response shape — rank the threat, recommend the action, cite the evidence, escalate when stakes warrant.
 
-Built for Hack-A-Stack 2026 at Santa Clara University, Endurance Track.
+---
+
+## Demo
+
+[![Sentinel dashboard](assets/sentinel-ui.jpeg)](assets/sentinel-demo.mp4)
+
+▶️ **[Watch the full demo video](assets/sentinel-demo.mp4)** &nbsp;·&nbsp; 📄 **[Read the Devpost write-up](https://devpost.com/software/sentinel-uheo94)**
+
+*Click the screenshot above to play the demo, or browse [`assets/`](assets/) for the raw files.*
 
 ---
 
@@ -274,8 +285,14 @@ Every company deploying AI agents in 2026 will need this layer.
 
 ## Team
 
-Built at Hack-A-Stack 2026, Santa Clara University.
+Built at Hack-A-Stack 2026, Santa Clara University. Awarded **Best Use of VoiceOS & Hypescribe** by the sponsor judges.
 
 - [Ankush Rai](https://github.com/akrai37)
 - [Harshvardhan Garude](https://github.com/Harshvardhan-Garude)
 - [Ray Hu](https://github.com/chu2)
+
+## Links
+
+- 📄 [Devpost](https://devpost.com/software/sentinel-uheo94)
+- 🎥 [Demo video](assets/sentinel-demo.mp4)
+- 🖼️ [Screenshot](assets/sentinel-ui.jpeg)

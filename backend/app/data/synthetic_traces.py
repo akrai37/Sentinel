@@ -58,7 +58,7 @@ def make_call(payload: dict) -> ToolCall:
 
 
 async def stream_traces(
-    rate_per_sec: float = 0.15,
+    rate_per_sec: float = 0.5,
     malicious_ratio: float = 0.06,
     ambiguous_ratio: float = 0.08,
 ) -> None:
