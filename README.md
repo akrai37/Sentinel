@@ -11,7 +11,11 @@ Sentinel watches two failure modes with the same reasoning engine: AI agents on 
 
 ## Demo
 
-▶️ **[Watch the demo video](assets/sentinel-demo.mp4)** &nbsp;·&nbsp; 📄 **[Read the Devpost write-up](https://devpost.com/software/sentinel-uheo94)**
+![Sentinel dashboard](assets/sentinel-ui.png)
+
+<video src="https://github.com/akrai37/Sentinel/raw/main/assets/sentinel-demo.mp4" controls width="100%"></video>
+
+▶️ **[Watch the demo video](https://github.com/akrai37/Sentinel/raw/main/assets/sentinel-demo.mp4)** &nbsp;·&nbsp; 📄 **[Read the Devpost write-up](https://devpost.com/software/sentinel-uheo94)**
 
 ---
 
