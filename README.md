@@ -1,11 +1,11 @@
 # Sentinel
 
-**Runtime firewall for AI agents. Operations layer for the AI Factory.**
+**AI incident triage for agent tool calls and infrastructure alerts.**
 
 > 🏆 **Winner — Best Use of VoiceOS & Hypescribe** at Hack-A-Stack 2026 (Santa Clara University, Endurance Track).
 > 📄 [Devpost submission](https://devpost.com/software/sentinel-uheo94)
 
-Sentinel watches two failure modes with the same reasoning engine: AI agents on top of infrastructure, and the GPU infrastructure underneath them. Both fail in new ways, and both need the same response shape — rank the threat, recommend the action, cite the evidence, escalate when stakes warrant.
+Sentinel is a hackathon prototype built with FastAPI and Next.js. It classifies synthetic agent tool-call events and evaluates Cisco infrastructure scenarios, then shows the evidence, proposed response, and escalation options in a shared dashboard.
 
 ---
 
@@ -19,54 +19,41 @@ https://github.com/user-attachments/assets/ba54beee-12b3-4860-bb3e-7c32b1c30276
 
 ## The problem
 
-AI factories run two things on top of GPUs: AI agents, and the infrastructure underneath them. Both fail in new ways, and the tools that exist today are split. Detection libraries flag threats but never act (Lakera, NeMo, Llama Guard). Observability platforms log incidents after the damage is done (LangSmith, Helicone). Cluster monitoring catches GPU memory and network problems but does not understand LLM semantics. Engineers stitch three or four panes of glass together, often at 3 AM, while an agent quietly drops a production table or a model serving config crashes a customer endpoint.
-
-Sentinel exists because the response to an agent attempting to delete a database should not look fundamentally different from the response to a GPU node overheating. Both are operational incidents. Both need the same answer: what happened, why, what action to take, who to wake up.
+Responders need enough context to decide what to do when an agent proposes a risky tool call or an infrastructure alert fires. Sentinel explores a shared workflow for reviewing the signals, recording a decision, and sharing incident context with other engineers.
 
 ---
 
-## Two layers, one engine
+## Two signal paths
 
-### Layer 1 — Agent firewall
+### Layer 1 — Agent tool-call triage
 
-Every tool call an AI agent makes is intercepted, scored by a two-tier ranker (regex heuristics first, Claude Haiku for the ambiguous middle band), and routed by severity. Critical events auto-block. High severity opens a war room. Medium events post to a Stream chat channel with action buttons. Our labeled eval set of 36 examples reports **100% precision, 95% recall, F1 0.97** — live in the dashboard footer.
+Synthetic calls and calls submitted to `POST /api/intercept` are scored by a two-tier ranker. Regex heuristics handle clear cases and Claude Haiku reviews the ambiguous band when configured. The policy records a block verdict for critical events and a pending-human verdict for medium and high events. High and critical events can be posted to Stream when configured. Connecting this endpoint to a production agent proxy remains future work.
 
 ### Layer 2 — AI Factory operations
 
-Sentinel ingests Cisco's AI Factory dataset (18 scenarios across performance, GPU placement, and failure detection), reads alerts, logs, and runbooks, and returns Cisco's required structured recommendation: action, target, reason category, confidence, evidence. Each recommendation also includes a plain-English reasoning sentence and a three-step on-call playbook with specific thresholds. All 18 scenarios pass Cisco's official `validate_recommendation.py --require-all` validator.
+Sentinel ingests Cisco's AI Factory dataset (18 scenarios across performance, GPU placement, and failure detection), reads alerts, logs, and runbooks, and returns Cisco's required structured recommendation: action, target, reason category, confidence, evidence. Each recommendation also includes a plain-English reasoning sentence and a three-step on-call playbook with specific thresholds. The saved recommendations cover all 18 scenarios and pass Cisco's format and scenario-coverage validator. The validator checks required fields, known and unique scenario IDs, and nonempty evidence. Operational correctness requires separate scoring.
 
 ### Cross-layer escalation
 
-Both layers share the same downstream surfaces. A Stream incident feed with filter tabs (All / Agent / Cisco / Escalations) is the audit log. The same MCP server exposes voice triage for both layers. The same Google Meet war room spawns for critical events on either layer.
+Both layers share the dashboard, optional Stream incident feed, and MCP tools for incident lookup and human decisions. The Google Meet action returns a pre-created room link from `GOOGLE_MEET_LINK`. Room records and attendee lists are held in memory.
 
 ---
 
 ## How it works
 
-```
-┌────────────┐   tool call   ┌──────────────────┐   verdict   ┌──────────────┐
-│ MCP client │ ───────────▶  │  Sentinel        │ ◀────────── │ Policy Engine│
-│ (Cursor /  │ ◀───────────  │  Interceptor     │             └──────┬───────┘
-│  Claude)   │   response    └────────┬─────────┘                    │
-└────────────┘                        │                              │
-                                      ▼                              │
-                            ┌──────────────────┐                     │
-                            │  Threat Ranker   │                     │
-                            │  Tier A: regex   │                     │
-                            │  Tier B: Haiku   │                     │
-                            └────────┬─────────┘                     │
-                                     │ score + rationale             │
-                                     ▼                               │
-                            ┌──────────────────┐                     │
-                            │ Severity Router  │ ─────────────────── ┘
-                            └────────┬─────────┘
-              ┌───────────────┬──────┴────────┬─────────────────┐
-              ▼               ▼               ▼                 ▼
-          log only      Stream chat      VoiceOS MCP        Google Meet
-          (low)         (medium)         (high)             war room (critical)
+Submitted and synthetic tool events flow through the ranker into a policy verdict and the in-memory event bus. The dashboard subscribes over server-sent events.
+
+```mermaid
+flowchart TD
+    Events["Submitted or synthetic calls"] --> Rules["Regex heuristics"]
+    Rules -->|Decisive| Policy["Policy verdict"]
+    Rules -->|Ambiguous| LLM["Optional Haiku review"]
+    LLM --> Policy
+    Policy --> Dashboard["Event bus and dashboard"]
+    Policy -->|High or critical| Chat["Optional Stream escalation"]
 ```
 
-Cisco scenarios flow through the same severity router. A high-severity infrastructure recommendation triggers the same Stream channel and war room a critical agent attack would.
+The Cisco advisor uses a separate recommendation path. Its explicit escalation action converts a recommendation into a high or critical incident card for the shared Stream channel. Responders can open the configured meeting link through the dashboard or MCP tools.
 
 ---
 
@@ -74,12 +61,14 @@ Cisco scenarios flow through the same severity router. A high-severity infrastru
 
 | Tier | Surface | Sponsor |
 |---|---|---|
-| Low | Dashboard log only | — |
-| Medium | Auto-created incident channel with approve/deny buttons | **Stream** |
-| High | Voice triage via MCP — ask Sentinel, tell it what to do | **VoiceOS** |
-| Critical | Auto-spawned video war room any responder can join | **Google Meet** (Tencent TRTC UserSig minting also implemented) |
+| Low | Dashboard log and allow verdict | — |
+| Medium | Dashboard with a pending-human verdict | — |
+| High | Dashboard and optional Stream incident card | **Stream** |
+| Critical | Dashboard block verdict, optional Stream card and Twilio call | **Stream**, **Twilio** |
 
-Plus **Anthropic Claude Haiku** powering the LLM tier of the ranker, and **Cisco's AI Factory dataset** as the Layer 2 ground truth.
+VoiceOS can invoke incident and Cisco tools through MCP. The meeting action uses a configured Google Meet link. Tencent TRTC UserSig generation is also implemented.
+
+**Anthropic Claude Haiku** powers the optional LLM tier. **Cisco's AI Factory dataset** supplies the infrastructure scenarios, alerts, logs, and runbooks.
 
 ---
 
@@ -88,7 +77,7 @@ Plus **Anthropic Claude Haiku** powering the LLM tier of the ranker, and **Cisco
 **Layer 1 — agent attack**
 1. Dashboard streams intercepted events in real time
 2. Click *Fire demo attack*. An agent attempts `DROP TABLE users`
-3. Ranker scores it 0.97, policy auto-blocks, severity routes to Critical
+3. Ranker scores the synthetic call 0.97 and records a Critical block verdict
 4. Red banner appears with action buttons
 5. Verdict propagates back to the dashboard and the Stream channel in real time
 
@@ -99,7 +88,7 @@ Plus **Anthropic Claude Haiku** powering the LLM tier of the ranker, and **Cisco
 4. Green *Next steps* card shows a three-step on-call playbook with thresholds
 5. Click the ✓ *Cisco validator passed* pill to see the validator output
 6. Click *Page on-call* — Cisco recommendation hits the Stream channel
-7. Click *Open war room* — Google Meet spins up, link goes to Stream
+7. Click *Open war room* to view the configured Google Meet link. Stream receives the link when configured.
 
 **Voice**
 - From VoiceOS, say *"what's the latest critical?"* — Sentinel reads the agent incident aloud
@@ -110,42 +99,44 @@ Plus **Anthropic Claude Haiku** powering the LLM tier of the ranker, and **Cisco
 
 ## Eval
 
-A 36-example labeled set runs on server boot. Live metrics show in the dashboard footer.
+The dashboard requests `/api/eval`, which runs the 36 labeled examples on the first request and caches the result for the process. The standalone harness runs the same examples. Evaluation treats a score of at least 0.5 as a positive prediction; the runtime policy assigns severity and verdict separately.
 
-| Metric | Heuristics only | + LLM (Haiku) |
+The heuristic-only column is reproducible without provider credentials. The Haiku column records the team's historical configured-model result and depends on the provider response. The small evaluation set demonstrates the prototype's behavior.
+
+| Metric | Heuristics only | Historical + LLM (Haiku) |
 |---|---|---|
 | Precision | 100% | **100%** |
 | Recall | 84% | **95%** |
 | F1 | 0.91 | **0.97** |
 
-Cisco validator (Layer 2): all 18 scenarios pass `validate_recommendation.py --require-all`.
+The saved Layer 2 output passes format and coverage validation for all 18 scenarios.
 
-Run agent eval:
+Run agent eval from the repository root. The standalone command reads `ANTHROPIC_API_KEY` from the process environment. The server loads `backend/.env` when `app.main` starts.
 ```bash
 cd backend
 source .venv/bin/activate
 python -m app.eval.harness
 ```
 
-Run Cisco validator:
+From a fresh repository-root terminal, run the Cisco format validator:
 ```bash
 cd backend/cisco_data/ai_factory_hackathon_student
-python validate_recommendation.py ../../sentinel_recommendations.json --require-all
+python validate_recommendation.py ../sentinel_recommendations.json --require-all
 ```
 
 ---
 
 ## Architecture decisions
 
-**Two-tier ranker.** Most traffic resolves at Tier A (regex heuristics) in microseconds. Only the ambiguous band (score roughly 0.20–0.70) escalates to Tier B (Claude Haiku). Results cached by call fingerprint. Falls back gracefully when no API key is set.
+**Two-tier ranker.** Decisive cases resolve through regex heuristics. Scores from 0.20 to 0.70 with at most one matched rule are eligible for Claude Haiku review. LLM outputs contain a score, category, and rationale and are cached by call fingerprint. When the API is unavailable or fails, the ranker returns the heuristic result.
 
-**Same engine, two signal streams.** The Cisco advisor is a separate module but shares the LLM client, the structured-output pattern, the severity router, and the downstream channels (Stream, VoiceOS, war room). A Cisco recommendation looks like an agent incident from the response surface's point of view.
+**Shared response surfaces.** The Cisco advisor has its own model client and deterministic fallback. Its recommendations and the agent ranker's events share the dashboard and downstream collaboration tools. The advisor validates returned actions against the scenario's allowed action menu.
 
 **MCP-first.** Sentinel exposes its operational surface as a Python MCP server with 8 tools (`incidents_lookup`, `incidents_decide`, `sentinel_status`, `cisco_scenarios`, `cisco_evaluate`, `warroom_create_meet`, `current_meet_link`, `warroom_invite`). VoiceOS picks it up via stdio and routes voice commands to our tools. Same protocol Sentinel defends.
 
 **In-memory event bus.** 50k ring buffer with SSE streaming to the dashboard. Survives the demo. Would persist to Postgres in production.
 
-**Graceful degradation.** Missing API keys hide the corresponding UI without breaking the app. The demo runs end-to-end with no credentials at all.
+**Optional integrations.** The local synthetic dashboard and heuristic evaluation run without provider credentials. Configured services enable model review, chat, calls, or the meeting link. The meeting action records attendees locally; the frontend email action opens a mail draft.
 
 **No auth.** Anyone with dashboard access can decide. v2 work, called out in the pitch.
 
@@ -201,7 +192,7 @@ TWILIO_AUTH_TOKEN=
 TWILIO_FROM_NUMBER=
 TWILIO_ONCALL_NUMBER=
 ```
-Everything degrades gracefully. Missing keys hide the corresponding UI without breaking the app.
+Configure the integrations used in your demo. The backend reports availability, and unavailable actions show their setup requirements.
 
 ---
 
@@ -216,7 +207,7 @@ Then say:
 - *"what's the latest critical?"*
 - *"evaluate scenario perf-001"*
 - *"release incident 42"*
-- *"send the war room link to chu2@scu.edu"*
+- *"get the current war room link"*
 
 ---
 
@@ -277,7 +268,7 @@ frontend/
 - **Role-based authorization and multi-party approval** for highest-stakes blocks
 - **Deeper Cisco integration** — beyond evaluation, integrate with live Cisco infrastructure telemetry
 
-Every company deploying AI agents in 2026 will need this layer.
+
 
 ---
 
